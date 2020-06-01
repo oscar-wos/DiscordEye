@@ -3,6 +3,8 @@ const logEvent = {
   MESSAGE_UPDATE: 'message_update'
 }
 
+const fs = require('fs');
+
 module.exports.resolveUserId = function(client, userId) {
   return new Promise(async (resolve, reject) => {
     userId = userId.replace('!', '');
@@ -15,4 +17,16 @@ module.exports.resolveUserId = function(client, userId) {
       resolve(user);
     } catch (err) { reject(err); }
   })
+}
+
+module.exports.translatePhrase = function(phrase, language) {
+  const en = require('./translations/en.json');
+  var translation = en[phrase];
+  
+  if (fs.existsSync(`./translations/${language}.json`)) {
+    const lang = require(`./translations/${language}.json`);
+    if (lang.hasOwnProperty(phrase)) translation = lang[phrase];
+  }
+
+  return translation;
 }
