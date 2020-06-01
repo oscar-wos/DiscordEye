@@ -7,7 +7,6 @@ module.exports = async (client) => {
     try {
       let values = await sql.loadGuild(client, guild.id);
       guild.db = values;
-
       guild.ready = true;
     } catch (err) { console.log(err); }
   })

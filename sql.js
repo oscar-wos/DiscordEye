@@ -20,7 +20,7 @@ module.exports.loadGuild = function loadGuild(client, guildId) {
       else values = dbGuild;
 
       resolve(values);
-    } catch (err) { console.log(err); }
+    } catch (err) { console.error(err); }
   })
 }
 
@@ -32,5 +32,3 @@ function findGuild(client, guildId) {
     })
   })
 }
-
-const config = require('./config.json');

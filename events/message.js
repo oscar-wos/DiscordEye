@@ -1,3 +1,22 @@
-module.exports = (client, message) => {
+const helper = require('../helper.js');
+
+module.exports = async (client, message) => {
   if (message.guild && !message.guild.ready) return;
+  if (message.content.length == 0) return;
+
+  var args;
+  let prefixIndex = message.content.indexOf(message.guild.db.prefix);
+
+  if (prefixIndex == 0) args = message.content.slice(message.guild.db.prefix.length).trim().split(/ +/g);
+  else {
+    args = message.content.trim().split(/ +/g);
+
+    try {
+      let checkClient = await helper.resolveUserId(client, args[0]);
+      if (!checkClient || checkClient.id != client.user.id) return;
+      args = args.slice(1);
+    } catch (err) { console.log(err); }
+  }
+
+  console.log(args);
 }
