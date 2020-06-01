@@ -1,4 +1,4 @@
-const logEvent = {
+const log = {
   MESSAGE_DELETE: 'message_delete',
   MESSAGE_UPDATE: 'message_update'
 }
