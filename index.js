@@ -43,7 +43,7 @@
       });
     });
     
-    let db = await sql.connect(client, config);
+    let db = await sql.connect(client);
     client.db = db;
   
     client.login(config.discord.token);

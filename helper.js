@@ -13,6 +13,6 @@ module.exports.resolveUserId = function(client, userId) {
     try {
       let user = await client.users.fetch(userId);
       resolve(user);
-    } catch (err) { console.log(err); }
+    } catch (err) { reject(err); }
   })
 }

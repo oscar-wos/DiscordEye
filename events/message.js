@@ -18,5 +18,14 @@ module.exports = async (client, message) => {
     } catch (err) { console.log(err); }
   }
 
-  console.log(args);
+  if (args[0].length == 0) return;
+  args[0] = args[0].toLowerCase();
+  
+  let command = message.guild.db.commands.find(command => command.aliases.includes(args[0]));
+  if (!command) return;
+
+  let con = client.commands.find(con => con.command == command.command);
+  if (!con) return;
+
+  con.run(client, message, args.slice(1));
 }
