@@ -1,16 +1,3 @@
-
-//console.log('1');
-/*
-(async () => {
-  console.log('1');
-  
-  
-  
-})
-*/
-
-
-
 (async () => {
   try {
     const config = require('./config.json');
@@ -19,7 +6,9 @@
     const fs = require('fs');
   
     const Discord = require("discord.js");
-    const client = new Discord.Client();
+    const client = new Discord.Client({
+      fetchAllMembers: true
+    });
   
     client.commands = new Discord.Collection();
   
@@ -43,7 +32,7 @@
       });
     });
     
-    await sql.connect(client);
+    await sql.connect();
     client.login(config.discord.token);
   } catch (err) { console.log(err); }
 })();

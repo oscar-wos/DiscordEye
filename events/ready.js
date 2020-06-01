@@ -6,11 +6,14 @@ module.exports = async (client) => {
 
   client.guilds.cache.forEach(async (guild) => {
     try {
-      let values = await sql.loadGuild(client, guild.id);
-      guild.db = values;
+      let guildQuery = await sql.loadGuild(client, guild.id);
+      guild.db = guildQuery;
       guild.ready = true;
 
-      console.log(helper.translatePhrase('test', 'en'));
+      guild.members.cache.forEach(async (guildMember) => {
+        let memberQuery = await sql.loadGuildMember(guild.id, guildMember.user.id);
+        guildMember.db = memberQuery;
+      })
     } catch (err) { console.log(err); }
   })
 }
