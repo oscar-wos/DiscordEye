@@ -1,3 +1,7 @@
+const messageType = {
+  MESSAGE_USAGE: 'type_usage'
+}
+
 const log = {
   MESSAGE_DELETE: 'message_delete',
   MESSAGE_UPDATE: 'message_update'
@@ -31,11 +35,24 @@ module.exports.translatePhrase = function(phrase, language) {
   return translation;
 }
 
+module.exports.sendMessage = function(channel, message, type) {
+  switch (type) {
+    case messageType.MESSAGE_USAGE: return messageUsage(channel, message);
+  }
+}
+
+function messageUsage(channel, message) {
+
+}
+
+
+/*
 module.exports.sendMessage = function(channel, message) {
   return new Promise(async (resolve, reject) => {
     try {
-      let send = await channel.send(message);
-      resolve(send);
+      let sendMessage = await channel.send(message);
+      resolve(sendMessage);
     } catch (err) { reject(err); }
   })
 }
+*/

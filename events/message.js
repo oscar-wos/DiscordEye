@@ -1,6 +1,7 @@
 const helper = require('../helper.js');
 
 module.exports = async (client, message) => {
+  if (message.author.bot) return;
   if (message.guild && !message.guild.ready) return;
   if (message.content.length == 0) return;
 
