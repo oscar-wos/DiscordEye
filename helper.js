@@ -30,3 +30,12 @@ module.exports.translatePhrase = function(phrase, language) {
 
   return translation;
 }
+
+module.exports.sendMessage = function(channel, message) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let send = await channel.send(message);
+      resolve(send);
+    } catch (err) { reject(err); }
+  })
+}

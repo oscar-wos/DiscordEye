@@ -39,7 +39,7 @@ module.exports.loadGuildMember = function loadGuildMember(guildId, userId) {
   return new Promise(async (resolve, reject) => {
     try {
       let dbMember = await findMember(guildId, userId);
-      let values = { guild: guildId, user: userId }
+      let values = { guild: guildId, user: userId, infractions: [] }
 
       if (!dbMember) db.collection('members').insertOne(values);
       else values = dbMember;

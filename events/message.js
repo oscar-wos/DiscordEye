@@ -15,7 +15,7 @@ module.exports = async (client, message) => {
       let checkClient = await helper.resolveUserId(client, args[0]);
       if (!checkClient || checkClient.id != client.user.id) return;
       args = args.slice(1);
-    } catch (err) { console.log(err); }
+    } catch (err) { return console.error(err); }
   }
 
   if (args[0].length == 0) return;
