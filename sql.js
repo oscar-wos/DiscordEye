@@ -18,7 +18,7 @@ module.exports.loadGuild = function(client, guildId) {
   return new Promise(async (resolve, reject) => {
     try {
       let dbGuild = await findGuild(guildId);
-      let values = { id: guildId, prefix: config.discord.prefix, lang: config.discord.language, commands: [], managers: config.discord.owners }
+      let values = { id: guildId, prefix: config.discord.prefix, lang: config.discord.language, managers: config.discord.owners, commands: [], tags: [] }
 
       if (!dbGuild) db.collection('guilds').insertOne(values);
       else values = dbGuild;
@@ -49,6 +49,15 @@ module.exports.loadGuildMember = function(guildId, userId) {
     } catch (err) { console.log(err); reject(err); }
   })
 }
+
+function findMember(guildId, userId) {
+  return new Promise((resolve, reject) => {
+    db.collection('members').findOne({ guild: guildId, user: userId }, (err, result) => {
+      if (err) reject(err);
+      resolve(result);
+    })
+  })
+}
 */
 
 module.exports.updatePrefix = function(guildId, prefix) {
@@ -62,8 +71,25 @@ module.exports.updatePrefix = function(guildId, prefix) {
   })
 }
 
+module.exports.updateManagers = function(guildId, managers) {
+  return new Promise((resolve, reject) => {
+    db.collection('guilds').findOneAndUpdate({ id: guildId }, { $set: { managers: managers }}, (err, result) => {
+      if (err) reject (err);
+      resolve(result);
+    })
+  })
+}
+
+module.exports.updateTags = function(guildId, tags) {
+  return new Promise((resolve, reject) => {
+    db.collection('guilds').findOneAndUpdate({ id: guildId }, { $set: { tags: tags }}, (err, result) => {
+      if (err) reject (err);
+      resolve(result);
+    })
+  })
+}
+
 module.exports.updateCommands = updateCommands;
-module.exports.updateManagers = updateManagers;
 
 function findGuild(guildId) {
   return new Promise((resolve, reject) => {
@@ -74,27 +100,9 @@ function findGuild(guildId) {
   })
 }
 
-function findMember(guildId, userId) {
-  return new Promise((resolve, reject) => {
-    db.collection('members').findOne({ guild: guildId, user: userId }, (err, result) => {
-      if (err) reject(err);
-      resolve(result);
-    })
-  })
-}
-
 function updateCommands(guildId, commands) {
   return new Promise((resolve, reject) => {
     db.collection('guilds').findOneAndUpdate({ id: guildId }, { $set: { commands: commands }}, (err, result) => {
-      if (err) reject (err);
-      resolve(result);
-    })
-  })
-}
-
-function updateManagers(guildId, managers) {
-  return new Promise((resolve, reject) => {
-    db.collection('guilds').findOneAndUpdate({ id: guildId }, { $set: { managers: managers }}, (err, result) => {
       if (err) reject (err);
       resolve(result);
     })

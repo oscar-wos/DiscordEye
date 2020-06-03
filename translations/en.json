@@ -16,5 +16,6 @@
   "manager_notincluded": "``%s`` is not a manager",
   "manager_add": "``%s`` has been added as a manager",
   "manager_remove": "``%s`` has been removed as a manager",
-  "manager_none": "There are no managers"
+  "manager_none": "There are no managers",
+  "tag_taken": "``%s`` is taken"
 }

@@ -23,7 +23,7 @@ module.exports = {
 
 async function add(client, message, args) {
   try {
-    let usage = '%s%s ``<add>`` ``<user>``';
+    let usage = '%s%s add ``<user>``';
     if (!args[2]) return helper.sendMessage(message.channel, `${helper.translatePhrase('usage', message.guild.db.lang)} ${util.format(usage, message.guild.db.prefix, args[0])}`, helper.messageType.USAGE);
 
     let user = await helper.resolveUser(message, args[2], true);
@@ -39,7 +39,7 @@ async function add(client, message, args) {
 
 async function remove(client, message, args) {
   try {
-    let usage = '%s%s ``<remove>`` ``<user>``';
+    let usage = '%s%s remove ``<user>``';
     if (!args[2]) return helper.sendMessage(message.channel, `${helper.translatePhrase('usage', message.guild.db.lang)} ${util.format(usage, message.guild.db.prefix, args[0])}`, helper.messageType.USAGE);
 
     let user = await helper.resolveUser(message, args[2], true);
