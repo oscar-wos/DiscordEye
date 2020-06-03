@@ -2,7 +2,8 @@
   "discord": {
       "token": "",
       "prefix": "!",
-      "language": "en"
+      "language": "en",
+      "owners": []
   },
   "mongodb": {
       "uri": ""

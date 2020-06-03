@@ -22,8 +22,7 @@ module.exports.resolveUser = function(client, userId) {
     if (isNaN(Number(userId))) return resolve();
 
     try {
-      let user = await client.users.fetch(userId);
-      resolve(user);
+      resolve(await client.users.fetch(userId));
     } catch (err) { reject(err); }
   })
 }
@@ -108,15 +107,3 @@ function messageError(channel, message) {
 }
 
 module.exports.messageType = messageType;
-
-
-/*
-module.exports.sendMessage = function(channel, message) {
-  return new Promise(async (resolve, reject) => {
-    try {
-      let sendMessage = await channel.send(message);
-      resolve(sendMessage);
-    } catch (err) { reject(err); }
-  })
-}
-*/

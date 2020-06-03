@@ -12,7 +12,6 @@
   
     client.commands = new Discord.Collection();
     
-    
     fs.readdir('./events/', (err, files) => {
       if (err) return console.err(err);
       files.forEach((file) => {

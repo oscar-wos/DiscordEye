@@ -18,7 +18,7 @@ module.exports.loadGuild = function(client, guildId) {
   return new Promise(async (resolve, reject) => {
     try {
       let dbGuild = await findGuild(guildId);
-      let values = { id: guildId, prefix: config.discord.prefix, lang: config.discord.language, commands: [] }
+      let values = { id: guildId, prefix: config.discord.prefix, lang: config.discord.language, commands: [], managers: config.discord.owners }
 
       if (!dbGuild) db.collection('guilds').insertOne(values);
       else values = dbGuild;

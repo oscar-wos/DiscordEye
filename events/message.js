@@ -32,8 +32,7 @@ module.exports = async (client, message) => {
   if (!con) return;
 
   if (!con.channel.includes(message.channel.type)) return;
-  
-  if (con.hasOwnProperty('guildPermissions') && !message.member.permissions.has(con.guildPermissions)) return helper.sendMessage(message.author, util.format(helper.translatePhrase('noaccess'), args[0], con.command), helper.messageType.NO_ACCESS);
+  if (con.hasOwnProperty('guildPermissions') && !message.member.permissions.has(con.guildPermissions) && !message.guild.db.managers.includes(message.author.id)) return helper.sendMessage(message.author, util.format(helper.translatePhrase('noaccess'), args[0], con.command), helper.messageType.NO_ACCESS);
   if (con.hasOwnProperty('guildBotPermissions') && !message.guild.me.permissions.has(con.guildBotPermissions)) return helper.sendMessage(message.channel, util.format(helper.translatePhrase('noaccess_bot'), con.guildBotPermissions), helper.messageType.ERROR)
 
   con.run(client, message, args);
