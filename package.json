@@ -1,0 +1,12 @@
+{
+  "description": "Discord",
+  "version": "0.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "discord.js": "12.2.0",
+    "mongodb": "3.5.8"
+  }
+}
