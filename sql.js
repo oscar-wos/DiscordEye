@@ -31,10 +31,11 @@ module.exports.loadGuild = function(client, guildId) {
       })
 
       resolve(values);
-    } catch (err) { reject(err); }
+    } catch (err) { console.log(err); reject(err); }
   })
 }
 
+/*
 module.exports.loadGuildMember = function(guildId, userId) {
   return new Promise(async (resolve, reject) => {
     try {
@@ -45,9 +46,10 @@ module.exports.loadGuildMember = function(guildId, userId) {
       else values = dbMember;
       
       resolve(dbMember);
-    } catch (err) { reject(err); }
+    } catch (err) { console.log(err); reject(err); }
   })
 }
+*/
 
 module.exports.updatePrefix = function(guildId, prefix) {
   return new Promise(async (resolve, reject) => {
@@ -61,6 +63,7 @@ module.exports.updatePrefix = function(guildId, prefix) {
 }
 
 module.exports.updateCommands = updateCommands;
+module.exports.updateManagers = updateManagers;
 
 function findGuild(guildId) {
   return new Promise((resolve, reject) => {
@@ -83,6 +86,15 @@ function findMember(guildId, userId) {
 function updateCommands(guildId, commands) {
   return new Promise((resolve, reject) => {
     db.collection('guilds').findOneAndUpdate({ id: guildId }, { $set: { commands: commands }}, (err, result) => {
+      if (err) reject (err);
+      resolve(result);
+    })
+  })
+}
+
+function updateManagers(guildId, managers) {
+  return new Promise((resolve, reject) => {
+    db.collection('guilds').findOneAndUpdate({ id: guildId }, { $set: { managers: managers }}, (err, result) => {
       if (err) reject (err);
       resolve(result);
     })

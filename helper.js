@@ -17,7 +17,7 @@ const log = {
 
 const fs = require('fs');
 
-module.exports.resolveUser = function(message, userId) {
+module.exports.resolveUser = function(message, userId, checkString = false) {
   return new Promise(async (resolve, reject) => {
     userId = userId.replace('!', '');
     if (userId.startsWith('<@')) userId = userId.slice(2, userId.length - 1);
@@ -26,7 +26,8 @@ module.exports.resolveUser = function(message, userId) {
       resolve(await message.client.users.fetch(userId));
     } catch {
       try {
-        resolve(await resolveString(message, userId));
+        if (checkString) return resolve(await resolveString(message, userId));
+        resolve();
       } catch { resolve(); }
     }
   })
@@ -40,7 +41,7 @@ function resolveString(message, string) {
       return;  
     }).array();
 
-    if (findUsers.length == 0) { sendMessage(message.channel, util.format(translatePhrase('target_notfound', message.guild ? message.guild.db.lang : config.discord.language), string), messageType.ERROR); return resolve(); }
+    if (findUsers.length == 0) { await sendMessage(message.channel, util.format(translatePhrase('target_notfound', message.guild ? message.guild.db.lang : config.discord.language), string), messageType.ERROR); return resolve(); }
     if (findUsers.length == 1) return resolve(findUsers[0]);
 
     let reply = '';
@@ -57,10 +58,10 @@ function resolveString(message, string) {
     await message.channel.awaitMessages(m => m.author.id == message.author.id, { max: 1, time: 10000, errors: ['time'] })
     .then(collection => {
       let collectedMessage = collection.first();
-      if (isNaN(collectedMessage.content)) { sendMessage(message.channel, util.format(translatePhrase('target_invalid', message.guild ? message.guild.db.lang : config.discord.language), collectedMessage.content, findUsers.length), messageType.ERROR); resolve(); }
+      if (isNaN(collectedMessage.content)) { sendMessage(message.channel, util.format(translatePhrase('target_invalid', message.guild ? message.guild.db.lang : config.discord.language), collectedMessage.content, findUsers.length - 1), messageType.ERROR); resolve(); }
       else {
         let pick = parseInt(collectedMessage.content);
-        if (pick < 0 || pick > findUsers.length || pick == 'NaN') { sendMessage(message.channel, util.format(translatePhrase('target_invalid', message.guild ? message.guild.db.lang : config.discord.language), collectedMessage.content, findUsers.length - 1), messageType.ERROR); resolve(); }
+        if (pick < 0 || pick > findUsers.length - 1 || pick == 'NaN') { sendMessage(message.channel, util.format(translatePhrase('target_invalid', message.guild ? message.guild.db.lang : config.discord.language), collectedMessage.content, findUsers.length - 1), messageType.ERROR); resolve(); }
 
         resolve(findUsers[pick]);
       }
