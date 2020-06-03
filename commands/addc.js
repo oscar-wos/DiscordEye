@@ -4,6 +4,8 @@ const util = require('util');
 module.exports = {
   aliases: ['addc', 'addalias'],
   usage: '%saddc <command> <alias>',
+  channel: ['text'],
+  guildPermissions: ['MANAGE_GUILD'],
   async run(client, message, args) {
     try {
       if (!args[0]) return helper.sendMessage(message.channel, util.format(this.usage, message.guild.db.prefix));

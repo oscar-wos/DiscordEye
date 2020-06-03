@@ -1,4 +1,5 @@
 const helper = require('../helper.js');
+const util = require('util');
 
 module.exports = async (client, message) => {
   if (message.author.bot) return;
@@ -6,14 +7,16 @@ module.exports = async (client, message) => {
   if (message.content.length == 0) return;
 
   var args;
-  let prefixIndex = message.content.indexOf(message.guild.db.prefix);
+
+  let prefixIndex = -1;
+  if (message.guild) prefixIndex = message.content.indexOf(message.guild.db.prefix);
 
   if (prefixIndex == 0) args = message.content.slice(message.guild.db.prefix.length).trim().split(/ +/g);
   else {
     args = message.content.trim().split(/ +/g);
 
     try {
-      let checkClient = await helper.resolveUserId(client, args[0]);
+      let checkClient = await helper.resolveUser(client, args[0]);
       if (!checkClient || checkClient.id != client.user.id) return;
       args = args.slice(1);
     } catch (err) { return console.error(err); }
@@ -28,5 +31,10 @@ module.exports = async (client, message) => {
   let con = client.commands.find(con => con.command == command.command);
   if (!con) return;
 
-  con.run(client, message, args.slice(1));
+  if (!con.channel.includes(message.channel.type)) return;
+  
+  if (con.hasOwnProperty('guildPermissions') && !message.member.permissions.has(con.guildPermissions)) return helper.sendMessage(message.author, util.format(helper.translatePhrase('noaccess'), args[0], con.command), helper.messageType.NO_ACCESS);
+  if (con.hasOwnProperty('guildBotPermissions') && !message.guild.me.permissions.has(con.guildBotPermissions)) return helper.sendMessage(message.channel, util.format(helper.translatePhrase('noaccess_bot'), con.guildBotPermissions), helper.messageType.ERROR)
+
+  con.run(client, message, args);
 }

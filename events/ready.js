@@ -14,6 +14,6 @@ module.exports = async (client) => {
         let memberQuery = await sql.loadGuildMember(guild.id, guildMember.user.id);
         guildMember.db = memberQuery;
       })
-    } catch (err) { console.log(err); }
+    } catch (err) { console.error(err); }
   })
 }

@@ -1,5 +1,10 @@
+const { MessageEmbed } = require('discord.js');
+
 const messageType = {
-  MESSAGE_USAGE: 'type_usage'
+  NO_ACCESS: 'type_noaccess',
+  USAGE: 'type_usage',
+  SUCCESS: 'type_sucess',
+  ERROR: 'type_error'
 }
 
 const log = {
@@ -9,7 +14,7 @@ const log = {
 
 const fs = require('fs');
 
-module.exports.resolveUserId = function(client, userId) {
+module.exports.resolveUser = function(client, userId) {
   return new Promise(async (resolve, reject) => {
     userId = userId.replace('!', '');
 
@@ -37,13 +42,72 @@ module.exports.translatePhrase = function(phrase, language) {
 
 module.exports.sendMessage = function(channel, message, type) {
   switch (type) {
-    case messageType.MESSAGE_USAGE: return messageUsage(channel, message);
+    case messageType.NO_ACCESS: return messageNoAccess(channel, message);
+    case messageType.USAGE: return messageUsage(channel, message);
+    case messageType.SUCCESS: return messageSuccess(channel, message);
+    case messageType.ERROR: return messageError(channel, message);
   }
 }
 
-function messageUsage(channel, message) {
+function messageNoAccess(user, message) {
+  let embed = new MessageEmbed();
+  embed.setDescription(message);
+  embed.setColor('RED');
 
+  try {
+    user.send(embed);
+  } catch { }
 }
+
+function messageUsage(channel, message) {
+  if (channel.guild) {
+    if (channel.permissionsFor(channel.guild.me).has('EMBED_LINKS')) {
+      let embed = new MessageEmbed();
+      embed.setDescription(message);
+      embed.setColor('YELLOW');
+
+      try {
+        return channel.send(embed);
+      } catch { }
+    }
+  }
+
+  channel.send(message);
+}
+
+function messageSuccess(channel, message) {
+  if (channel.guild) {
+    if (channel.permissionsFor(channel.guild.me).has('EMBED_LINKS')) {
+      let embed = new MessageEmbed();
+      embed.setDescription(message);
+      embed.setColor('GREEN');
+
+      try {
+        return channel.send(embed);
+      } catch { }
+    }
+  }
+
+  channel.send(message);
+}
+
+function messageError(channel, message) {
+  if (channel.guild) {
+    if (channel.permissionsFor(channel.guild.me).has('EMBED_LINKS')) {
+      let embed = new MessageEmbed();
+      embed.setDescription(message);
+      embed.setColor('RED');
+
+      try {
+        return channel.send(embed);
+      } catch { }
+    }
+  }
+
+  channel.send(message);
+}
+
+module.exports.messageType = messageType;
 
 
 /*

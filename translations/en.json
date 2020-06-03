@@ -1,3 +1,6 @@
 {
-  "addc_noargs": "Could not find a command by: %s"
+  "usage": "Usage:",
+  "noaccess": "You do not have permission to run: %s (%s)",
+  "noaccess_bot": "I do not have the following permissions: %s",
+  "prefix_updated": "Prefix changed to: %s"
 }

@@ -3,7 +3,7 @@ const { MongoClient } = require('mongodb');
 
 var db;
 
-module.exports.connect = function connect() {
+module.exports.connect = function() {
   return new Promise(async (resolve, reject) => {
     try {
       const mongoClient = new MongoClient(config.mongodb.uri, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -14,7 +14,7 @@ module.exports.connect = function connect() {
   })
 }
 
-module.exports.loadGuild = function loadGuild(client, guildId) {
+module.exports.loadGuild = function(client, guildId) {
   return new Promise(async (resolve, reject) => {
     try {
       let dbGuild = await findGuild(guildId);
@@ -25,7 +25,7 @@ module.exports.loadGuild = function loadGuild(client, guildId) {
       
       client.commands.forEach(async (command) => {
         if (!values.commands.find(com => com.command == command.command)) {
-          values.commands.push(command);
+          values.commands.push({ command: command.command, aliases: command.aliases });
           await updateGuildCommands(guildId, values.commands);
         }
       })
@@ -35,7 +35,7 @@ module.exports.loadGuild = function loadGuild(client, guildId) {
   })
 }
 
-module.exports.loadGuildMember = function loadGuildMember(guildId, userId) {
+module.exports.loadGuildMember = function(guildId, userId) {
   return new Promise(async (resolve, reject) => {
     try {
       let dbMember = await findMember(guildId, userId);
@@ -45,6 +45,17 @@ module.exports.loadGuildMember = function loadGuildMember(guildId, userId) {
       else values = dbMember;
       
       resolve(dbMember);
+    } catch (err) { reject(err); }
+  })
+}
+
+module.exports.updatePrefix = function(guildId, prefix) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      db.collection('guilds').findOneAndUpdate({ id: guildId }, { $set: { prefix: prefix }}, (err, result) => {
+        if (err) reject (err);
+        resolve(result);
+      })
     } catch (err) { reject(err); }
   })
 }
