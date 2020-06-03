@@ -4,7 +4,7 @@ const util = require('util');
 
 module.exports = {
   aliases: ['prefix', 'p'],
-  usage: '%s%s <prefix>',
+  usage: '%s%s ``<prefix>``',
   channel: ['text'],
   guildPermissions: ['MANAGE_GUILD'],
   async run(client, message, args) {

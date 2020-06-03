@@ -16,12 +16,13 @@ module.exports = async (client, message) => {
     args = message.content.trim().split(/ +/g);
 
     try {
-      let checkClient = await helper.resolveUser(client, args[0]);
+      let checkClient = await helper.resolveUser(message, args[0]);
       if (!checkClient || checkClient.id != client.user.id) return;
       args = args.slice(1);
     } catch (err) { return console.error(err); }
   }
 
+  if (!args) return;
   if (args[0].length == 0) return;
   args[0] = args[0].toLowerCase();
   

@@ -1,6 +1,6 @@
 {
   "usage": "Usage:",
-  "noaccess": "You do not have permission to run: %s (%s)",
+  "noaccess": "You do not have permission to run: ``%s`` (%s)",
   "noaccess_bot": "I do not have the following permissions: %s",
   "prefix_updated": "Prefix changed to ``%s``",
   "command_notfound": "``%s`` is invalid! Posibilities: %s",
@@ -8,5 +8,8 @@
   "command_nottaken": "``%s`` is not bound",
   "command_unable": "Unable to remove ``%s``",
   "command_remove": "``%s`` has been removed",
-  "command_add": "``%s`` has been assigned to ``%s``"
+  "command_add": "``%s`` has been assigned to ``%s``",
+  "target_notfound": "Unable to find ``%s``",
+  "target_toolong": "You have taken too long",
+  "target_invalid": "``%s`` is invalid ``0 - %i``"
 }

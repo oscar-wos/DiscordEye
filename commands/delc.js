@@ -4,7 +4,7 @@ const util = require('util');
 
 module.exports = {
   aliases: ['delc', 'delalias', 'removealias', 'deletealias'],
-  usage: '%s%s <alias>',
+  usage: '%s%s ``<alias>``',
   channel: ['text'],
   guildPermissions: ['MANAGE_GUILD'],
   async run(client, message, args) {
@@ -18,7 +18,7 @@ module.exports = {
       if (check) return helper.sendMessage(message.channel, util.format(helper.translatePhrase('command_unable', message.guild.db.lang), check.command), helper.messageType.ERROR);
 
       alias.aliases.splice(alias.aliases.indexOf(args[1]), 1);
-      sql.updateCommands(message.guild.id, message.guild.db.commands);
+      await sql.updateCommands(message.guild.id, message.guild.db.commands);
       helper.sendMessage(message.channel, util.format(helper.translatePhrase('command_remove', message.guild.db.lang), args[1]), helper.messageType.SUCCESS);
     } catch (err) { console.error(err); }
   }

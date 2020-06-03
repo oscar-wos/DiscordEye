@@ -4,7 +4,7 @@ const util = require('util');
 
 module.exports = {
   aliases: ['addc', 'addalias'],
-  usage: '%s%s <command> <alias>',
+  usage: '%s%s ``<command>`` ``<alias>``',
   channel: ['text'],
   guildPermissions: ['MANAGE_GUILD'],
   async run(client, message, args) {
@@ -20,7 +20,7 @@ module.exports = {
       let guildCommand = message.guild.db.commands.find(command => command.command == args[1]);
       guildCommand.aliases.push(args[2]);
 
-      sql.updateCommands(message.guild.id, message.guild.db.commands);
+      await sql.updateCommands(message.guild.id, message.guild.db.commands);
       helper.sendMessage(message.channel, util.format(helper.translatePhrase('command_add', message.guild.db.lang), args[2], command.command), helper.messageType.SUCCESS);
     } catch (err) { console.error(err); }
   }
