@@ -35,9 +35,14 @@ module.exports.resolveUser = function(message, userId, checkString = false) {
 
 function resolveString(message, string) {
   return new Promise(async (resolve, reject) => {
+    string = string.toLowerCase();
+
     let findUsers = message.client.users.cache.filter(user => {
-      if (user.tag.toLowerCase().includes(string.toLowerCase())) return user;
-      if (message.guild && message.guild.member(user).displayName.toLowerCase().includes(string.toLowerCase())) return user;
+      if (!message.guild && user.tag.toLowerCase().includes(string)) return user;
+      else {
+        let member = message.guild.member(user);
+        if (member && (user.tag.toLowerCase().includes(string) || message.guild.member(user).displayName.toLowerCase().includes(string))) return user;
+      }
       return;  
     }).array();
 
