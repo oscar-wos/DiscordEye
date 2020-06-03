@@ -2,5 +2,11 @@
   "usage": "Usage:",
   "noaccess": "You do not have permission to run: %s (%s)",
   "noaccess_bot": "I do not have the following permissions: %s",
-  "prefix_updated": "Prefix changed to: %s"
+  "prefix_updated": "Prefix changed to ``%s``",
+  "command_notfound": "``%s`` is invalid! Posibilities: %s",
+  "command_taken": "``%s`` is bound to ``%s``",
+  "command_nottaken": "``%s`` is not bound",
+  "command_unable": "Unable to remove ``%s``",
+  "command_remove": "``%s`` has been removed",
+  "command_add": "``%s`` has been assigned to ``%s``"
 }
