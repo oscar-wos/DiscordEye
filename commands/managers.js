@@ -3,8 +3,8 @@ const sql = require('../sql.js');
 const util = require('util');
 
 module.exports = {
-  aliases: ['managers', 'manager', 'ms'],
-  usage: '%s%s ``<add/remove/list>``',
+  aliases: ['managers', 'manager', 'ms', 'm'],
+  usage: '%s%s ``<(a)dd/(r)emove/(l)ist>``',
   channel: ['text'],
   guildPermissions: ['MANAGE_GUILD'],
   async run(client, message, args) {
@@ -12,9 +12,9 @@ module.exports = {
       if (!args[1]) return helper.sendMessage(message.channel, `${helper.translatePhrase('usage', message.guild.db.lang)} ${util.format(this.usage, message.guild.db.prefix, args[0])}`, helper.messageType.USAGE);
 
       switch (args[1]) {
-        case 'add': return add(client, message, args);
-        case 'remove': return remove(client, message, args);
-        case 'list': return list(client, message, args);
+        case 'add': case 'a': return add(client, message, args);
+        case 'remove': case 'r': return remove(client, message, args);
+        case 'list': case 'l': return list(client, message, args);
         default: return helper.sendMessage(message.channel, `${helper.translatePhrase('usage', message.guild.db.lang)} ${util.format(this.usage, message.guild.db.prefix, args[0])}`, helper.messageType.USAGE);
       }
     } catch (err) { console.error(err); }
@@ -23,7 +23,7 @@ module.exports = {
 
 async function add(client, message, args) {
   try {
-    let usage = '%s%s add ``<user>``';
+    let usage = '%s%s (a)dd ``<user>``';
     if (!args[2]) return helper.sendMessage(message.channel, `${helper.translatePhrase('usage', message.guild.db.lang)} ${util.format(usage, message.guild.db.prefix, args[0])}`, helper.messageType.USAGE);
 
     let user = await helper.resolveUser(message, args[2], true);
@@ -39,7 +39,7 @@ async function add(client, message, args) {
 
 async function remove(client, message, args) {
   try {
-    let usage = '%s%s remove ``<user>``';
+    let usage = '%s%s (r)emove ``<user>``';
     if (!args[2]) return helper.sendMessage(message.channel, `${helper.translatePhrase('usage', message.guild.db.lang)} ${util.format(usage, message.guild.db.prefix, args[0])}`, helper.messageType.USAGE);
 
     let user = await helper.resolveUser(message, args[2], true);

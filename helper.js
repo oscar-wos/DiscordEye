@@ -7,7 +7,8 @@ const messageType = {
   USAGE: 'type_usage',
   SUCCESS: 'type_sucess',
   ERROR: 'type_error',
-  CODE: 'type_code'
+  CODE: 'type_code',
+  NORMAL: 'type_normal'
 }
 
 const log = {
@@ -101,6 +102,7 @@ function sendMessage(channel, message, type) {
       case messageType.SUCCESS: return resolve(await messageSuccess(channel, message));
       case messageType.ERROR: return resolve(await messageError(channel, message));
       case messageType.CODE: return resolve(await messageCode(channel, message));
+      case messageType.NORMAL: return resolve(await messageNormal(channel, message));
     }
   })
 }
@@ -160,6 +162,14 @@ function messageCode(channel, message) {
   return new Promise(async (resolve, reject) => {
     try {
       resolve(await channel.send(message, { code: true }));
+    } catch { resolve(); }
+  })
+}
+
+function messageNormal(channel, message) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      resolve(await channel.send(message));
     } catch { resolve(); }
   })
 }

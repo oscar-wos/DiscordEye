@@ -6,6 +6,11 @@ module.exports = async (client, message) => {
   if (message.guild && !message.guild.ready) return;
   if (message.content.length == 0) return;
 
+  if (message.guild) {
+    let tag = message.guild.db.tags.find(tag => tag.tag == message.cleanContent);
+    if (tag) helper.sendMessage(message.channel, tag.value, helper.messageType.NORMAL);
+  }
+
   var args;
 
   let prefixIndex = -1;
