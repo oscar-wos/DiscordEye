@@ -24,5 +24,6 @@
   "tag_list": "Available tags: %s",
   "tag_none": "There are no tags",
   "channel_invalid": "``%s`` is not a valid channel",
-  "log_set": "``%s`` is now the log channel"
+  "log_set": "``%s`` is now the log channel",
+  "attachments_downloadenabled": "Command disabled due to DownloadAttachments: true"
 }

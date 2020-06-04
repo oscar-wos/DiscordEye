@@ -51,9 +51,19 @@ module.exports.resolveChannel = function(message, channelId, checkString = false
 
 module.exports.sendLogMessage = function(guild, data, type) {
   return new Promise(async (resolve, reject) => {
-    if (!guild.ready || guild.db.log.channel == null) return resolve();
     if (!guild.db.log.enabledModules.includes(type)) return resolve();
 
+    switch (type) {
+      case logType.MESSAGE_DELETE: return resolve(await logDelete(guild, data));
+      case logType.MESSAGE_UPDATE: return resolve(await logUpdate(guild, data));
+    }
+  })
+}
+
+function logDelete(guild, data) {
+  return new Promise(async (resolve, reject) => {
+    if (!guild.ready || guild.db.log.channel == null) return resolve();
+    
     let embed = new MessageEmbed();
     embed.setDescription(data);
     embed.setColor('YELLOW');
@@ -102,9 +112,7 @@ function resolveUserString(message, string) {
     .then(collection => {
       let collectedMessage = collection.first();
 
-      try {
-        collectedMessage.delete();
-      } catch { }
+      deleteMessage(collectedMessage, true);
       if (isNaN(collectedMessage.content)) { sendMessage(message.channel, util.format(translatePhrase('target_invalid', message.guild ? message.guild.db.lang : config.discord.language), collectedMessage.content, findUsers.length - 1), messageType.ERROR); resolve(); }
       else {
         let pick = parseInt(collectedMessage.content);
@@ -117,9 +125,7 @@ function resolveUserString(message, string) {
       if (collection.size == 0) sendMessage(message.channel, translatePhrase('target_toolong', message.guild ? message.guild.db.lang : config.discord.language), messageType.ERROR); resolve();
     })
 
-    try {
-      await selection.delete({ reason: 'Resolve User by String' });
-    } catch { }
+    deleteMessage(selection, true);
   })
 }
 
@@ -143,12 +149,10 @@ function resolveChannelString(message, string) {
     let selection = await sendMessage(message.channel, reply, messageType.CODE);
 
     await message.channel.awaitMessages(m => m.author.id == message.author.id, { max: 1, time: 10000, errors: ['time'] })
-    .then(collection => {
+    .then(async collection => {
       let collectedMessage = collection.first();
 
-      try {
-        collectedMessage.delete();
-      } catch { }
+      deleteMessage(collectedMessage, true);
       if (isNaN(collectedMessage.content)) { sendMessage(message.channel, util.format(translatePhrase('target_invalid', message.guild ? message.guild.db.lang : config.discord.language), collectedMessage.content, findChannels.length - 1), messageType.ERROR); resolve(); }
       else {
         let pick = parseInt(collectedMessage.content);
@@ -161,9 +165,7 @@ function resolveChannelString(message, string) {
       if (collection.size == 0) sendMessage(message.channel, translatePhrase('target_toolong', message.guild ? message.guild.db.lang : config.discord.language), messageType.ERROR); resolve();
     })
 
-    try {
-      await selection.delete({ reason: 'Resolve Channel by String' });
-    } catch { }
+    deleteMessage(selection, true);
   })
 }
 
@@ -259,7 +261,15 @@ function messageNormal(channel, message) {
   })
 }
 
+function deleteMessage(message, botDelete = false) {
+  try {
+    await message.delete();
+    if (botDelete) message.botDelete = true;
+  } catch { }
+}
+
 module.exports.logType = logType;
 module.exports.messageType = messageType;
 module.exports.sendMessage = sendMessage;
 module.exports.translatePhrase = translatePhrase;
+module.exports.deleteMessage = deleteMessage;
