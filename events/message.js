@@ -1,11 +1,14 @@
+const config = require('../config.json');
 const helper = require('../helper.js');
 const util = require('util');
+const fetch = require('node-fetch');
+const fs = require('fs');
 
 module.exports = async (client, message) => {
-  checkAttachments(message);
-
   if (message.author.bot) return;
   if (message.guild && !message.guild.ready) return;
+  message.attachments.forEach(attachment => downloadAttachment(message.channel, attachment));
+
   if (message.content.length == 0) return;
 
   if (message.guild) {
@@ -41,12 +44,31 @@ module.exports = async (client, message) => {
 
   if (!con.channel.includes(message.channel.type)) return;
   if (con.hasOwnProperty('guildPermissions') && !message.member.permissions.has(con.guildPermissions) && !message.guild.db.managers.includes(message.author.id)) return helper.sendMessage(message.author, util.format(helper.translatePhrase('noaccess'), args[0], con.command), helper.messageType.NO_ACCESS);
-  if (con.hasOwnProperty('guildBotPermissions') && !message.guild.me.permissions.has(con.guildBotPermissions)) return helper.sendMessage(message.channel, util.format(helper.translatePhrase('noaccess_bot'), con.guildBotPermissions), helper.messageType.ERROR)
+  if (con.hasOwnProperty('guildBotPermissions') && !message.guild.me.permissions.has(con.guildBotPermissions)) return helper.sendMessage(message.channel, util.format(helper.translatePhrase('noaccess_bot'), con.guildBotPermissions), helper.messageType.ERROR);
 
-  con.run(client, message, args);
-  helper.deleteMessage(message, true);
+  try {
+    await con.run(client, message, args);
+    helper.deleteMessage(message, true);
+  } catch { }
 }
 
-function checkAttachments(message) {
+function downloadAttachment(channel, attachment) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!channel.guild.db.log.files && !config.discord.log.downloadAttachments) return resolve();
 
+      if (!fs.existsSync('./attachments')) fs.mkdirSync('./attachments');
+      if (!fs.existsSync(`./attachments/${channel.id}`)) fs.mkdirSync(`./attachments/${channel.id}`);
+      fs.mkdirSync(`./attachments/${channel.id}/${attachment.id}`);
+
+      let file = fs.createWriteStream(`./attachments/${channel.id}/${attachment.id}/${attachment.name}`);
+      let res = await fetch(attachment.url);
+      await res.body.pipe(file);
+
+      if (config.discord.log.downloadAttachments) return resolve();
+      else {
+        
+      }
+    } catch { resolve(); }
+  })
 }

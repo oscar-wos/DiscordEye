@@ -25,5 +25,9 @@
   "tag_none": "There are no tags",
   "channel_invalid": "``%s`` is not a valid channel",
   "log_set": "``%s`` is now the log channel",
-  "attachments_downloadenabled": "Command disabled due to DownloadAttachments: true"
+
+
+  "attachments_downloadenabled": "Command disabled due to config.discord.log.downloadAttachments: true",
+  "attachments_usage": "Usage: %s%s ``<channel>``",
+  "attachments_set": "``%s`` has been set as the attachments channel"
 }

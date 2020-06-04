@@ -18,7 +18,7 @@ module.exports.loadGuild = function(client, guildId) {
   return new Promise(async (resolve, reject) => {
     try {
       let dbGuild = await findGuild(guildId);
-      let values = { id: guildId, prefix: config.discord.prefix, lang: config.discord.language, managers: config.discord.owners, commands: [], tags: [], log: { channel: null, webhook: { id: null, token: null }, enabledModules: config.discord.log.defaultModules }}
+      let values = { id: guildId, prefix: config.discord.prefix, lang: config.discord.language, managers: config.discord.owners, commands: [], tags: [], log: { channel: null, files: null, webhook: { id: null, token: null }, enabledModules: config.discord.log.defaultModules }}
 
       if (!dbGuild) db.collection('guilds').insertOne(values);
       else values = dbGuild;

@@ -14,7 +14,8 @@ const messageType = {
   SUCCESS: 'type_sucess',
   ERROR: 'type_error',
   CODE: 'type_code',
-  NORMAL: 'type_normal'
+  NORMAL: 'type_normal',
+  ATTACHMENT: 'type_attachment'
 }
 
 module.exports.resolveUser = function(message, userId, checkString = false) {
@@ -33,16 +34,15 @@ module.exports.resolveUser = function(message, userId, checkString = false) {
   })
 }
 
-module.exports.resolveChannel = function(message, channelId, checkString = false) {
+module.exports.resolveChannel = function(message, channelId, channelType, checkString = false) {
   return new Promise(async (resolve, reject) => {
-    channelId = channelId.replace('!', '');
     if (channelId.startsWith('<#')) channelId = channelId.slice(2, channelId.length - 1);
 
     try {
       resolve(await message.guild.channels.fetch(channelId));
     } catch {
       try {
-        if (checkString) return resolve(await resolveChannelString(message, channelId));
+        if (checkString) return resolve(await resolveChannelString(message, channelId, channelType));
         resolve();
       } catch { resolve(); }
     }
@@ -129,11 +129,11 @@ function resolveUserString(message, string) {
   })
 }
 
-function resolveChannelString(message, string) {
+function resolveChannelString(message, string, channelType) {
   return new Promise(async (resolve, reject) => {
     string = string.toLowerCase();
 
-    let findChannels = message.guild.channels.cache.filter(channel => channel.name.toLowerCase().includes(string)).array();
+    let findChannels = message.guild.channels.cache.filter(channel => channel.name.toLowerCase().includes(string) && channel.type == channelType).array();
     if (findChannels.length == 0) { await sendMessage(message.channel, util.format(translatePhrase('target_notfound', message.guild ? message.guild.db.lang : config.discord.language), string), messageType.ERROR); return resolve(); }
     if (findChannels.length == 1) return resolve(findChannels[0]);
 
@@ -261,7 +261,7 @@ function messageNormal(channel, message) {
   })
 }
 
-function deleteMessage(message, botDelete = false) {
+async function deleteMessage(message, botDelete = false) {
   try {
     await message.delete();
     if (botDelete) message.botDelete = true;
