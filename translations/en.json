@@ -22,5 +22,7 @@
   "tag_notfound": "``%s`` is not a tag",
   "tag_remove": "``%s`` has been removed as a tag",
   "tag_list": "Available tags: %s",
-  "tag_none": "There are no tags"
+  "tag_none": "There are no tags",
+  "channel_invalid": "``%s`` is not a valid channel",
+  "log_set": "``%s`` is now the log channel"
 }

@@ -3,7 +3,11 @@
       "token": "",
       "prefix": "!",
       "language": "en",
-      "owners": []
+      "owners": [],
+      "log": {
+        "downloadAttachments": true,
+        "defaultLogType": ["message_delete", "message_update"]
+      }
   },
   "mongodb": {
       "uri": ""
