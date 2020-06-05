@@ -3,12 +3,12 @@
   "noaccess": "You do not have permission to run: ``%s`` (%s)",
   "noaccess_bot": "I do not have the following permissions: %s",
   "prefix_updated": "Prefix changed to ``%s``",
-  "command_notfound": "``%s`` is invalid! Possibilities: %s",
-  "command_taken": "``%s`` is bound to ``%s``",
-  "command_nottaken": "``%s`` is not bound",
-  "command_unable": "Unable to remove ``%s``",
-  "command_remove": "``%s`` has been removed as a command",
-  "command_add": "``%s`` has been assigned to ``%s``",
+  
+  
+  
+  
+ 
+  
   "target_notfound": "Unable to find ``%s``",
   "target_toolong": "You have taken too long",
   "target_invalid": "``%s`` is invalid! Possibilities: ``0-%i``",
@@ -24,10 +24,25 @@
   "tag_list": "Available tags: %s",
   "tag_none": "There are no tags",
   "channel_invalid": "``%s`` is not a valid channel",
-  "log_set": "``%s`` is now the log channel",
+  
 
 
   "attachments_downloadenabled": "Command disabled due to config.discord.log.downloadAttachments: true",
   "attachments_usage": "Usage: %s%s ``<channel>``",
-  "attachments_set": "``%s`` has been set as the attachments channel"
+  "attachments_set": "``%s`` has been set as the attachments channel",
+
+  "aliases_usage": "Usage: %s%s ``(a)dd`` ``(r)emove`` ``(i)nfo``",
+  "aliases_add_usage": "Usage: %s%s (a)dd ``<command>`` ``<alias>``",
+  "aliases_remove_usage": "Usage: %s%s (r)emove ``<alias>``",
+  "alaises_info_usage": "Usage: %s%s (i)nfo ``<alias>``",
+  "aliases_notfound": "``%s`` is invalid! Possibilities: %s",
+  "aliases_taken": "``%s`` is already bound to ``%s``",
+  "aliases_add": "``%s`` has been assigned to ``%s``",
+  "aliases_nottaken": "``%s`` is not bound to any command",
+  "aliases_unable": "Unable to remove ``%s``",
+  "aliases_remove": "``%s`` has been removed as a command",
+
+  "logs_usage": "Usage: %s%s ``(s)et``",
+  "logs_set_usage": "Usage: %s%s (s)et ``<channel>``",
+  "logs_set": "``%s`` has been set as the log channel"
 }

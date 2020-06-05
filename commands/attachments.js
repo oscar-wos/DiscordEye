@@ -4,7 +4,7 @@ const sql = require('../sql.js');
 const util = require('util');
 
 module.exports = {
-  aliases: ['attachments', 'files'],
+  aliases: ['attachments', 'files', 'f'],
   channel: ['text'],
   guildPermissions: ['MANAGE_GUILD'],
   run(client, message, args) {
