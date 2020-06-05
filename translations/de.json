@@ -1,0 +1,59 @@
+{
+  "usage": "Beispiel:",
+  "noaccess": "Du hast nicht die nötigen Berechtigungen: ``%s`` (%s)",
+  "noaccess_bot": "Ich habe nicht die nötigen Berechtigungen: %s",
+  "prefix_updated": "Prefix geändert: ``%s``",
+
+
+
+
+
+
+  "target_notfound": "``%s`` nicht gefunden",
+  "target_toolong": "Du hast zu lange gebraucht",
+  "target_invalid": "``%s`` ist ungültig! Auswahlmöglichkeiten: ``0-%i``",
+  "manager_included": "``%s`` ist bereits Manager",
+  "manager_notincluded": "``%s`` ist kein Manager",
+  "manager_add": "``%s`` wurde als Manager hinzugefügt",
+  "manager_remove": "``%s`` ist kein Manager mehr",
+  "manager_none": "Es gibt keine Manager",
+  "tag_taken": "``%s`` wird schon benutzt",
+  "tag_add": "``%s`` wurde als Tag hinzugefügt",
+  "tag_notfound": "``%s`` ist kein Tag",
+  "tag_remove": "``%s`` wurde entfernt",
+  "tag_list": "Verfügbare Tags: %s",
+  "tag_none": "Es gibt keine Tags",
+  "channel_invalid": "``%s`` ist kein gültiger Channel",
+
+
+
+  "attachments_downloadenabled": "Befehl deaktiviert, da config.discord.log.downloadAttachments: true",
+  "attachments_usage": "Beispiel: %s%s ``<channel>``",
+  "attachments_set": "``%s`` wurde als Channel für Dateianhänge definiert",
+
+  "aliases_usage": "Beispiel: %s%s ``(a)dd`` ``(r)emove`` ``(i)nfo``",
+  "aliases_add_usage": "Beispiel: %s%s (a)dd ``<command>`` ``<alias>``",
+  "aliases_remove_usage": "Beispiel: %s%s (r)emove ``<alias>``",
+  "alaises_info_usage": "Beispiel: %s%s (i)nfo ``<alias>``",
+  "aliases_notfound": "``%s`` ist ungültig! Möglichkeiten: %s",
+  "aliases_taken": "``%s`` ist bereits ``%s`` zugewiesen",
+  "aliases_add": "``%s`` wurde ``%s`` zugewiesen",
+  "aliases_nottaken": "``%s`` ist keinem Befehl zugewiesen",
+  "aliases_unable": "Konnte ``%s`` nicht entfernen",
+  "aliases_remove": "``%s`` wurde als Befehl entfernt",
+
+  "logs_usage": "Beispiel: %s%s ``(s)et``",
+  "logs_set_usage": "Beispiel: %s%s (s)et ``<channel>``",
+  "logs_set": "``%s`` wurde als Log-Channel definiert",
+
+  "log_message": "**Nachricht**: %s",
+  "log_message_link": "**Link**: %s",
+  "log_message_attachment": "**Nachricht**: ``%s``",
+  "log_attachment_url": "**Anhang**: %s [[Ansehen](%s)]",
+  "log_attachment_configure": "**Anhang**: %s | Mit ``%sfiles`` konfigurieren",
+  "log_attachment": "**Anhang**: %s",
+
+  "log_message_new": "**Neu**: [[Ansehen](%s)] %s",
+  "log_message_link_new": "**Neuer Link**: [[Ansehen](%s)] %s",
+  "log_message_attachment_new": "**Neu**: [[Ansehen](%s)] ``%s``"
+}
