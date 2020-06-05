@@ -55,6 +55,7 @@ module.exports = async (client, message) => {
 function downloadAttachment(channel, attachment) {
   return new Promise(async (resolve, reject) => {
     try {
+      attachment.channel = channel;
       if (channel.guild.db.log.files == null && !config.discord.log.downloadAttachments) return resolve();
 
       if (!fs.existsSync('./attachments')) fs.mkdirSync('./attachments');

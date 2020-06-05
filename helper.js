@@ -1,5 +1,6 @@
 const config = require('./config.json');
 const { MessageEmbed } = require('discord.js');
+const { uuid } = require('uuidv4');
 const util = require('util');
 const fs = require('fs');
 
@@ -63,35 +64,47 @@ module.exports.sendLogMessage = function(guild, data, type) {
 function logDelete(guild, data) {
   return new Promise(async (resolve, reject) => {
     if (!guild.ready || guild.db.log.channel == null) return resolve();
-    let message = lengthCheck(data.cleanContent);
-
-    console.log(message);
-
-    /*
-    let message 
-    
     let embed = new MessageEmbed();
-    embed.setDescription(data);
     embed.setColor('YELLOW');
     embed.setFooter(`${data.author.tag}${data.guild.member(data.author).displayName != data.author.username ? ` [${data.guild.member(data.author).displayName}]` : ''} deleted in #${data.channel.name}`);
 
+    let sendMessage = '';
+    let files = [];
+
+    let message = lengthCheck(data.cleanContent);
+
+    if (message.type == 'text') sendMessage += `**Message**: ${message.value}`
+    else if (message.type == 'id') {
+      if (config.site.enabled) sendMessage += `**Message Link**: ${config.site.url}/messages/${message.value}.txt`;
+      else {
+        sendMessage += `**Message Attachment**: ${message.value}`;
+        files.push(`./messages/${message.value}.txt`);
+      }
+    }
+
     if (data.attachments.size > 0) {
       let attachment = data.attachments.first();
-      if (config.discord.log.downloadAttachments) embed.setImage(`./attachments/${data.channel.id}/${attachment.id}/${attachment.name}`);
-      else if (data.guild.db.log.files != null) embed.setImage(attachment.link.url);
+
+      if (sendMessage.length > 0) sendMessage += `\n`;
+      if (data.guild.db.log.files != null && attachment.hasOwnProperty('link')) sendMessage += `**Attachment**: ${attachment.name} [[View](${attachment.link.url})]`;
+      else if (!config.discord.log.downloadAttachments) sendMessage += `**Attachment**: ${attachment.name} | Configure with \`\`${data.guild.db.prefix}files\`\``;
+      else {
+        sendMessage += `**Attachment**: ${attachment.name}`;
+        files.push(`./attachments/${attachment.channel.id}/${attachment.id}/${attachment.name}`);
+      }
     }
-    
+
+    embed.setDescription(sendMessage);
+
     if (guild.hasOwnProperty('logHook')) {
       try {
-        return resolve(await guild.logHook.send(embed));
+        return resolve(await guild.logHook.send('', { embeds: [ embed ], files: files }));
       } catch { }
     }
 
     let guildChannel = guild.channels.cache.find(channel => channel.id == guild.db.log.channel);
-
-    try { resolve(await guildChannel.send(embed)); }
+    try { resolve(await guildChannel.send('', { embed: embed, files: files })); }
     catch { resolve(); }
-    */
   })
 }
 
@@ -285,10 +298,12 @@ function messageAttachment(channel, message) {
 }
 
 function lengthCheck(string) {
-  if (string.length == 0) return '';
+  if (string.length == 0) return { type: 'none' }
   else if (string.length < 500 && string.split('\n').length < 5) return { type: 'text', value: string }
   else {
     if (!fs.existsSync('./messages')) fs.mkdirSync('./messages');
+
+    let id = uuid();
     fs.writeFileSync(`./messages/${id}.txt`, string);
     return { type: 'id', value: id }
   }
