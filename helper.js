@@ -40,7 +40,7 @@ module.exports.resolveChannel = function(message, channelId, channelType, checkS
     if (channelId.startsWith('<#')) channelId = channelId.slice(2, channelId.length - 1);
 
     try {
-      resolve(await message.guild.channels.fetch(channelId));
+      resolve(await message.client.channels.fetch(channelId));
     } catch {
       try {
         if (checkString) return resolve(await resolveChannelString(message, channelId, channelType));
@@ -52,6 +52,7 @@ module.exports.resolveChannel = function(message, channelId, channelType, checkS
 
 module.exports.sendLogMessage = function(guild, data, type) {
   return new Promise(async (resolve, reject) => {
+    if (!guild.hasOwnProperty('ready') || guild.db.log.channel == null) return resolve();
     if (!guild.db.log.enabledModules.includes(type)) return resolve();
 
     switch (type) {
@@ -63,21 +64,20 @@ module.exports.sendLogMessage = function(guild, data, type) {
 
 function logDelete(guild, data) {
   return new Promise(async (resolve, reject) => {
-    if (!guild.ready || guild.db.log.channel == null) return resolve();
     let embed = new MessageEmbed();
-    embed.setColor('YELLOW');
-    embed.setFooter(`${data.author.tag}${data.guild.member(data.author).displayName != data.author.username ? ` [${data.guild.member(data.author).displayName}]` : ''} deleted in #${data.channel.name}`);
+    embed.setColor('ORANGE');
+    embed.setFooter(`${data.author.tag}${data.guild.member(data.author) && data.guild.member(data.author).displayName != data.author.username ? ` [${data.guild.member(data.author).displayName}]` : ''} deleted in #${data.channel.name}`);
 
     let sendMessage = '';
     let files = [];
 
     let message = lengthCheck(data.cleanContent);
 
-    if (message.type == 'text') sendMessage += `**Message**: ${message.value}`
+    if (message.type == 'text') sendMessage += util.format(translatePhrase('log_message', guild.db.lang), message.value);
     else if (message.type == 'id') {
-      if (config.site.enabled) sendMessage += `**Message Link**: ${config.site.url}/messages/${message.value}.txt`;
+      if (config.site.enabled) sendMessage += util.format(translatePhrase('log_message_link', guild.db.lang), `${config.site.url}/messages/${message.value}.txt`);
       else {
-        sendMessage += `**Message Attachment**: ${message.value}`;
+        sendMessage += util.format(translatePhrase('log_message_attachment', guild.db.lang), message.value);
         files.push(`./messages/${message.value}.txt`);
       }
     }
@@ -86,13 +86,85 @@ function logDelete(guild, data) {
       let attachment = data.attachments.first();
 
       if (sendMessage.length > 0) sendMessage += `\n`;
-      if (data.guild.db.log.files != null && attachment.hasOwnProperty('link')) sendMessage += `**Attachment**: ${attachment.name} [[View](${attachment.link.url})]`;
-      else if (!config.discord.log.downloadAttachments) sendMessage += `**Attachment**: ${attachment.name} | Configure with \`\`${data.guild.db.prefix}files\`\``;
+      
+      if (data.guild.db.log.files != null && attachment.hasOwnProperty('link')) sendMessage += util.format(translatePhrase('log_attachment_url', guild.db.lang), attachment.name, attachment.link.url);
+      else if (!config.discord.log.downloadAttachments) sendMessage += util.format(translatePhrase('log_attachment_configure', guild.db.lang), attachment.name, guild.db.prefix);
       else {
-        sendMessage += `**Attachment**: ${attachment.name}`;
+        sendMessage += util.format(translatePhrase('log_attachment', guild.db.lang), attachment.name);
         files.push(`./attachments/${attachment.channel.id}/${attachment.id}/${attachment.name}`);
       }
     }
+
+    embed.setDescription(sendMessage);
+
+    if (guild.hasOwnProperty('logHook')) {
+      try {
+        return resolve(await guild.logHook.send('', { embeds: [ embed ], files: files }));
+      } catch { }
+    }
+
+    let guildChannel = guild.channels.cache.find(channel => channel.id == guild.db.log.channel);
+    try { resolve(await guildChannel.send('', { embed: embed, files: files })); }
+    catch { resolve(); }
+  })
+}
+
+function logUpdate(guild, data) {
+  return new Promise(async (resolve, reject) => {
+    let embed = new MessageEmbed();
+    embed.setColor('YELLOW');
+    embed.setFooter(`${data.new.author.tag}${data.new.guild.member(data.new.author) && data.new.guild.member(data.new.author).displayName != data.new.author.username ? ` [${data.new.guild.member(data.new.author).displayName}]` : ''} edited in #${data.new.channel.name}`);
+
+    let sendMessage = '';
+    let files = [];
+
+    let oldMessage = lengthCheck(data.old.cleanContent);
+    let newMessage = lengthCheck(data.new.cleanContent);
+
+    if (oldMessage.type == 'text') sendMessage += util.format(translatePhrase('log_message', guild.db.lang), oldMessage.value);
+    else if (oldMessage.type == 'id') {
+      if (config.site.enabled) sendMessage += util.format(translatePhrase('log_message_link', guild.db.lang), `${config.site.url}/messages/${oldMessage.value}.txt`);
+      else {
+        sendMessage += util.format(translatePhrase('log_message_attachment', guild.db.lang), oldMessage.value);
+        files.push(`./messages/${oldMessage.value}.txt`);
+      }
+    }
+
+    sendMessage += '\n';
+
+    if (newMessage.type == 'text') sendMessage += util.format(translatePhrase('log_message_new', guild.db.lang), data.new.url, newMessage.value);
+    else if (newMessage.type == 'id') {
+      if (config.site.enabled) sendMessage += util.format(translatePhrase('log_message_link_new', guild.db.lang), data.new.url, `${config.site.url}/messages/${newMessage.value}.txt`);
+      else {
+        sendMessage += util.format(translatePhrase('log_message_attachment_new', guild.db.lang), data.new.url, newMessage.value);
+        files.push(`./messages/${newMessage.value}.txt`);
+      }
+    }
+    
+
+    /*
+    if (message.type == 'text') sendMessage += util.format(translatePhrase('log_message', guild.db.lang), message.value);
+    else if (message.type == 'id') {
+      if (config.site.enabled) sendMessage += util.format(translatePhrase('log_message_link', guild.db.lang), `${config.site.url}/messages/${message.value}.txt`);
+      else {
+        sendMessage += util.format(translatePhrase('log_message_attachment', guild.db.lang), message.value);
+        files.push(`./messages/${message.value}.txt`);
+      }
+    }
+
+    if (data.attachments.size > 0) {
+      let attachment = data.attachments.first();
+
+      if (sendMessage.length > 0) sendMessage += `\n`;
+      
+      if (data.guild.db.log.files != null && attachment.hasOwnProperty('link')) sendMessage += util.format(translatePhrase('log_attachment_url', guild.db.lang), attachment.name, attachment.link.url);
+      else if (!config.discord.log.downloadAttachments) sendMessage += util.format(translatePhrase('log_attachment_configure', guild.db.lang), attachment.name, guild.db.prefix);
+      else {
+        sendMessage += util.format(translatePhrase('log_attachment', guild.db.lang), attachment.name);
+        files.push(`./attachments/${attachment.channel.id}/${attachment.id}/${attachment.name}`);
+      }
+    }
+    */
 
     embed.setDescription(sendMessage);
 
