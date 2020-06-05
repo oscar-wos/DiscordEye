@@ -63,11 +63,24 @@ module.exports.sendLogMessage = function(guild, data, type) {
 function logDelete(guild, data) {
   return new Promise(async (resolve, reject) => {
     if (!guild.ready || guild.db.log.channel == null) return resolve();
+    let message = lengthCheck(data.cleanContent);
+
+    console.log(message);
+
+    /*
+    let message 
     
     let embed = new MessageEmbed();
     embed.setDescription(data);
     embed.setColor('YELLOW');
+    embed.setFooter(`${data.author.tag}${data.guild.member(data.author).displayName != data.author.username ? ` [${data.guild.member(data.author).displayName}]` : ''} deleted in #${data.channel.name}`);
 
+    if (data.attachments.size > 0) {
+      let attachment = data.attachments.first();
+      if (config.discord.log.downloadAttachments) embed.setImage(`./attachments/${data.channel.id}/${attachment.id}/${attachment.name}`);
+      else if (data.guild.db.log.files != null) embed.setImage(attachment.link.url);
+    }
+    
     if (guild.hasOwnProperty('logHook')) {
       try {
         return resolve(await guild.logHook.send(embed));
@@ -78,6 +91,7 @@ function logDelete(guild, data) {
 
     try { resolve(await guildChannel.send(embed)); }
     catch { resolve(); }
+    */
   })
 }
 
@@ -190,6 +204,7 @@ function sendMessage(channel, message, type) {
       case messageType.ERROR: return resolve(await messageError(channel, message));
       case messageType.CODE: return resolve(await messageCode(channel, message));
       case messageType.NORMAL: return resolve(await messageNormal(channel, message));
+      case messageType.ATTACHMENT: return resolve(await messageAttachment(channel, message));
     }
   })
 }
@@ -259,6 +274,24 @@ function messageNormal(channel, message) {
       resolve(await channel.send(message));
     } catch { resolve(); }
   })
+}
+
+function messageAttachment(channel, message) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      resolve(await channel.send(message.content, { files: [message.attachment] }));
+    } catch { resolve(); }
+  })
+}
+
+function lengthCheck(string) {
+  if (string.length == 0) return '';
+  else if (string.length < 500 && string.split('\n').length < 5) return { type: 'text', value: string }
+  else {
+    if (!fs.existsSync('./messages')) fs.mkdirSync('./messages');
+    fs.writeFileSync(`./messages/${id}.txt`, string);
+    return { type: 'id', value: id }
+  }
 }
 
 async function deleteMessage(message, botDelete = false) {

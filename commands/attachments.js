@@ -17,7 +17,7 @@ module.exports = {
         let channel = await helper.resolveChannel(message, args[1], 'text', true);
         if (!channel) return resolve();
 
-        message.guild.db.log.attachments = channel.id;
+        message.guild.db.log.files = channel.id;
         await sql.updateLog(message.guild.id, message.guild.db.log);
         resolve(await helper.sendMessage(message.channel, util.format(helper.translatePhrase('attachments_set', message.guild.db.lang), channel.name), helper.messageType.SUCCESS));
       } catch { resolve(); }

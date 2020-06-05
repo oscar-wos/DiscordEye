@@ -55,7 +55,7 @@ module.exports = async (client, message) => {
 function downloadAttachment(channel, attachment) {
   return new Promise(async (resolve, reject) => {
     try {
-      if (!channel.guild.db.log.files && !config.discord.log.downloadAttachments) return resolve();
+      if (channel.guild.db.log.files == null && !config.discord.log.downloadAttachments) return resolve();
 
       if (!fs.existsSync('./attachments')) fs.mkdirSync('./attachments');
       if (!fs.existsSync(`./attachments/${channel.id}`)) fs.mkdirSync(`./attachments/${channel.id}`);
@@ -67,7 +67,14 @@ function downloadAttachment(channel, attachment) {
 
       if (config.discord.log.downloadAttachments) return resolve();
       else {
-        
+        let filesChannel = channel.guild.channels.cache.find(guildChannel => guildChannel.id == channel.guild.db.log.files);
+        if (!filesChannel) return resolve();
+
+        let attachmentMessage = await helper.sendMessage(filesChannel, { attachment: attachment }, helper.messageType.ATTACHMENT);
+        attachment.link = attachmentMessage;
+
+        fs.unlinkSync(`./attachments/${channel.id}/${attachment.id}/${attachment.name}`);
+        fs.unlinkSync(`./attachments/${channel.id}/${attachment.id}`);
       }
     } catch { resolve(); }
   })

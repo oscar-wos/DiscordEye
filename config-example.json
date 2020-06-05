@@ -11,5 +11,9 @@
   },
   "mongodb": {
       "uri": ""
+  },
+  "site": {
+    "enabled": false,
+    "url": ""
   }
 }
