@@ -6,7 +6,7 @@
       "owners": [],
       "log": {
         "downloadAttachments": true,
-        "defaultModules": ["message_delete", "message_update"]
+        "defaultModules": ["message_delete", "message_update", "message_bulk_delete"]
       }
   },
   "mongodb": {

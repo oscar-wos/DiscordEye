@@ -6,7 +6,8 @@ const fs = require('fs');
 
 const logType = {
   MESSAGE_DELETE: 'message_delete',
-  MESSAGE_UPDATE: 'message_update'
+  MESSAGE_UPDATE: 'message_update',
+  MESSAGE_BULK_DELETE: 'message_bulk_delete'
 }
 
 const messageType = {
@@ -58,6 +59,7 @@ module.exports.sendLogMessage = function(guild, data, type) {
     switch (type) {
       case logType.MESSAGE_DELETE: return resolve(await logDelete(guild, data));
       case logType.MESSAGE_UPDATE: return resolve(await logUpdate(guild, data));
+      case logType.MESSAGE_BULK_DELETE: return resolve(await logBulkDelete(guild, data));
     }
   })
 }
@@ -140,31 +142,6 @@ function logUpdate(guild, data) {
         files.push(`./messages/${newMessage.value}.txt`);
       }
     }
-    
-
-    /*
-    if (message.type == 'text') sendMessage += util.format(translatePhrase('log_message', guild.db.lang), message.value);
-    else if (message.type == 'id') {
-      if (config.site.enabled) sendMessage += util.format(translatePhrase('log_message_link', guild.db.lang), `${config.site.url}/messages/${message.value}.txt`);
-      else {
-        sendMessage += util.format(translatePhrase('log_message_attachment', guild.db.lang), message.value);
-        files.push(`./messages/${message.value}.txt`);
-      }
-    }
-
-    if (data.attachments.size > 0) {
-      let attachment = data.attachments.first();
-
-      if (sendMessage.length > 0) sendMessage += `\n`;
-      
-      if (data.guild.db.log.files != null && attachment.hasOwnProperty('link')) sendMessage += util.format(translatePhrase('log_attachment_url', guild.db.lang), attachment.name, attachment.link.url);
-      else if (!config.discord.log.downloadAttachments) sendMessage += util.format(translatePhrase('log_attachment_configure', guild.db.lang), attachment.name, guild.db.prefix);
-      else {
-        sendMessage += util.format(translatePhrase('log_attachment', guild.db.lang), attachment.name);
-        files.push(`./attachments/${attachment.channel.id}/${attachment.id}/${attachment.name}`);
-      }
-    }
-    */
 
     embed.setDescription(sendMessage);
 
@@ -177,6 +154,63 @@ function logUpdate(guild, data) {
     let guildChannel = guild.channels.cache.find(channel => channel.id == guild.db.log.channel);
     try { resolve(await guildChannel.send('', { embed: embed, files: files })); }
     catch { resolve(); }
+  })
+}
+
+function logBulkDelete(guild, data) {
+  return new Promise(async (resolve, reject) => {
+    let embed = new MessageEmbed();
+    embed.setColor('ORANGE');
+    embed.setFooter(`${data.messages.size} Messages deleted in #${data.channel.name}`);
+
+    let sendMessage = '';
+    let files = [];
+
+    let messages = data.messages.array();
+    for (let i = messages.length - 1; i >= 0; i--) {
+      if (sendMessage.length > 0) sendMessage += '\n';
+
+      if (messages[i].hasOwnProperty('changes')) {
+        for (let x = 0; x < messages[i].changes.length; x++) {
+          if (messages[i].changes[x].cleanContent.length == 0) continue;
+          sendMessage += `${new Date(messages[i].changes[x].createdTimestamp)} ${messages[i].author.tag}${guild.member(messages[i].author) && guild.member(messages[i].author).displayName != messages[i].author.username ? ` [${guild.member(messages[i].author).displayName}]` : ''} | ${messages[i].changes[x].cleanContent}\n`;
+        }
+      }
+
+      if (messages[i].cleanContent.length > 0) sendMessage += `${new Date(messages[i].createdTimestamp)} ${messages[i].author.tag}${guild.member(messages[i].author) && guild.member(messages[i].author).displayName != messages[i].author.username ? ` [${guild.member(messages[i].author).displayName}]` : ''} -> ${messages[i].cleanContent}`;
+
+      if (messages[i].hasOwnProperty('attachment')) {
+        if (sendMessage.length > 0) sendMessage += '\n';
+
+        if (messages[i].attachment.hasOwnProperty('link')) sendMessage += `Attachment: ${messages[i].attachment.link.url}`;
+        else sendMessage += `Attachment: /attachments/${messages[i].attachment.channel.id}/${messages[i].attachment.id}/${messages[i].attachment.name}`
+      }
+    }
+
+    if (!fs.existsSync('./messages')) fs.mkdirSync('./messages');
+
+    let id = uuid();
+    fs.writeFileSync(`./messages/${id}.txt`, sendMessage);
+
+    let string = '';
+
+    if (config.site.enabled) string = util.format(translatePhrase('log_messages_link', guild.db.lang), `${config.site.url}/messages/${id}.txt`);
+    else {
+      string = util.format(translatePhrase('log_messages_attachment', guild.db.lang), id);
+      files.push(`./messages/${id}.txt`);
+    }
+
+    embed.setDescription(string);
+
+    if (guild.hasOwnProperty('logHook')) {
+      try {
+        return resolve(await guild.logHook.send('', { embeds: [ embed ], files: files }));
+      } catch { }
+    }
+
+    let guildChannel = guild.channels.cache.find(channel => channel.id == guild.db.log.channel);
+    try { resolve(await guildChannel.send('', { embed: embed, files: files })); }
+    catch (err) { console.log(err); resolve(); }
   })
 }
 

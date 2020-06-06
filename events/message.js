@@ -7,7 +7,11 @@ const fs = require('fs');
 module.exports = async (client, message) => {
   if (message.author.bot) return;
   if (message.guild && !message.guild.ready) return;
-  message.attachments.forEach(attachment => downloadAttachment(message.channel, attachment));
+
+  if (message.attachments.size > 0) {
+    let attachment = message.attachments.first();
+    downloadAttachment(message, attachment);
+  }
 
   if (message.content.length == 0) return;
 
@@ -52,27 +56,28 @@ module.exports = async (client, message) => {
   } catch { }
 }
 
-function downloadAttachment(channel, attachment) {
+function downloadAttachment(message, attachment) {
   return new Promise(async (resolve, reject) => {
     try {
-      attachment.channel = channel;
-      if (channel.guild.db.log.files == null && !config.discord.log.downloadAttachments) return resolve();
+      message.attachment = attachment;
+      message.attachment.channel = message.channel;
+      if (message.guild.db.log.files == null && !config.discord.log.downloadAttachments) return resolve();
 
       if (!fs.existsSync('./attachments')) fs.mkdirSync('./attachments');
-      if (!fs.existsSync(`./attachments/${channel.id}`)) fs.mkdirSync(`./attachments/${channel.id}`);
-      fs.mkdirSync(`./attachments/${channel.id}/${attachment.id}`);
+      if (!fs.existsSync(`./attachments/${message.channel.id}`)) fs.mkdirSync(`./attachments/${message.channel.id}`);
+      fs.mkdirSync(`./attachments/${message.channel.id}/${attachment.id}`);
 
-      let file = fs.createWriteStream(`./attachments/${channel.id}/${attachment.id}/${attachment.name}`);
+      let file = fs.createWriteStream(`./attachments/${message.channel.id}/${attachment.id}/${attachment.name}`);
       let res = await fetch(attachment.url);
       await res.body.pipe(file);
 
       if (config.discord.log.downloadAttachments) return resolve();
       else {
-        let filesChannel = channel.guild.channels.cache.find(guildChannel => guildChannel.id == channel.guild.db.log.files);
+        let filesChannel = message.guild.channels.cache.find(guildChannel => guildChannel.id == message.guild.db.log.files);
         if (!filesChannel) return resolve();
 
         let attachmentMessage = await helper.sendMessage(filesChannel, { attachment: attachment }, helper.messageType.ATTACHMENT);
-        attachment.link = attachmentMessage;
+        message.attachment.link = attachmentMessage;
 
         fs.unlinkSync(`./attachments/${channel.id}/${attachment.id}/${attachment.name}`);
         fs.unlinkSync(`./attachments/${channel.id}/${attachment.id}`);

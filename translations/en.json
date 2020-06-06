@@ -55,5 +55,8 @@
 
   "log_message_new": "**New**: [[View](%s)] %s",
   "log_message_link_new": "**New Link**: [[View](%s)] %s",
-  "log_message_attachment_new": "**New**: [[View](%s)] ``%s``"
+  "log_message_attachment_new": "**New**: [[View](%s)] ``%s``",
+
+  "log_messages_link": "**Messages Link**: %s",
+  "log_messages_attachment": "**Messages**: ``%s``"
 }
