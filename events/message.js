@@ -60,7 +60,9 @@ function downloadAttachment(message, attachment) {
   return new Promise(async (resolve, reject) => {
     try {
       message.attachment = attachment;
+      message.attachment.createdTimestamp = Date.now();
       message.attachment.channel = message.channel;
+
       if (message.guild.db.log.files == null && !config.discord.log.downloadAttachments) return resolve();
 
       if (!fs.existsSync('./attachments')) fs.mkdirSync('./attachments');
