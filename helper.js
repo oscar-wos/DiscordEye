@@ -440,13 +440,13 @@ async function checkAuditStatus(message) {
 
       if (entry.target.id == message.author.id) {
         if (lastEntry) {
-          if (lastEntry.id == entry.id && lastEntry.extra.count == entry.extra.count) return resolve();
+          if (lastEntry.id == entry.id && lastEntry.extra.count == entry.extra.count) return resolve(null);
           return resolve(entry.executor);
         }
 
         return resolve(entry.executor);
       }
-    } catch { resolve(); }
+    } catch { resolve(null); }
   })
 }
 
