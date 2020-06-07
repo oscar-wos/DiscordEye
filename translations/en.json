@@ -42,9 +42,16 @@
   "aliases_unable": "Unable to remove ``%s``",
   "aliases_remove": "``%s`` has been removed as a command",
 
-  "logs_usage": "Usage: %s%s ``(s)et``",
+  "logs_usage": "Usage: %s%s ``(s)et`` ``(e)nable`` ``(d)isable``",
   "logs_set_usage": "Usage: %s%s (s)et ``<channel>``",
+  "logs_enable_usage": "Usage: %s%s (e)nable ``<logType>``",
+  "logs_disable_usage": "Usage: %s%s (d)isable ``<logType>``",
   "logs_set": "``%s`` has been set as the log channel",
+  "logs_notfound": "``%s`` is invalid! Possibilities:%s",
+  "logs_alreadyenabled": "``%s`` is already enabled",
+  "logs_alreadydisabled": "``%s`` is already disabled",
+  "logs_enabled": "``%s`` logging has been enabled",
+  "logs_disabled": "``%s`` logging has been disabled",
 
   "log_message": "**Message**: %s",
   "log_message_link": "**Message Link**: %s",

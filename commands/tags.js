@@ -8,7 +8,6 @@ module.exports = {
   channel: ['text'],
   guildPermissions: ['MANAGE_GUILD'],
   async run(client, message, args) {
-    message.channel.bulkDelete(5);
     try {
       if (!args[1]) return helper.sendMessage(message.channel, `${helper.translatePhrase('usage', message.guild.db.lang)} ${util.format(this.usage, message.guild.db.prefix, args[0])}`, helper.messageType.USAGE);
 

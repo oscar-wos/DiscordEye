@@ -3,7 +3,7 @@ const sql = require('../sql.js');
 const util = require('util');
 
 module.exports = {
-  aliases: ['managers', 'manager', 'ms', 'm'],
+  aliases: ['managers', 'manager', 'm'],
   usage: '%s%s ``<(a)dd/(r)emove/(l)ist>``',
   channel: ['text'],
   guildPermissions: ['MANAGE_GUILD'],
