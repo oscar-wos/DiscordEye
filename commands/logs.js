@@ -61,12 +61,8 @@ function enable(client, message, args) {
       let logTypeValues = Object.values(helper.logType);
       let find = logTypeValues.includes(args[2].toLowerCase());
 
-      if (!find) {
-        let values = '';
-
-        for (let i = 0; i < logTypeValues.length; i++) values += ` \`\`${logTypeValues[i]}\`\``;
-        return resolve(await helper.sendMessage(message.channel, util.format(helper.translatePhrase('logs_notfound', message.guild.db.lang), args[2], values), helper.messageType.ERROR));
-      }
+      for (let i = 0; i < logTypeValues.length; i++) logTypeValues[i] = `\`\`${logTypeValues[i]}\`\``;
+      if (!find) return resolve(await helper.sendMessage(message.channel, util.format(helper.translatePhrase('logs_notfound', message.guild.db.lang), args[2], logTypeValues.join(' ')), helper.messageType.ERROR));
 
       if (message.guild.db.log.enabledModules.includes(args[2].toLowerCase())) return resolve(await helper.sendMessage(message.channel, util.format(helper.translatePhrase('logs_alreadyenabled', message.guild.db.lang), args[2]), helper.messageType.ERROR));
 
@@ -84,12 +80,10 @@ function disable(client, message, args) {
 
       let logTypeValues = Object.values(helper.logType);
       let find = logTypeValues.includes(args[2].toLowerCase());
-      
-      if (!find) {
-        let values = '';
 
-        for (let i = 0; i < logTypeValues.length; i++) values += ` \`\`${logTypeValues[i]}\`\``;
-        return resolve(await helper.sendMessage(message.channel, util.format(helper.translatePhrase('logs_notfound', message.guild.db.lang), args[2], values), helper.messageType.ERROR));
+      if (!find) {
+        for (let i = 0; i < logTypeValues.length; i++) logTypeValues[i] = `\`\`${logTypeValues[i]}\`\``;
+        return resolve(await helper.sendMessage(message.channel, util.format(helper.translatePhrase('logs_notfound', message.guild.db.lang), args[2], logTypeValues.join(' ')), helper.messageType.ERROR));
       }
 
       if (!message.guild.db.log.enabledModules.includes(args[2].toLowerCase())) return resolve(await helper.sendMessage(message.channel, util.format(helper.translatePhrase('logs_alreadydisabled', message.guild.db.lang), args[2]), helper.messageType.ERROR));

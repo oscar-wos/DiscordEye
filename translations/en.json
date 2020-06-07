@@ -35,7 +35,7 @@
   "aliases_add_usage": "Usage: %s%s (a)dd ``<command>`` ``<alias>``",
   "aliases_remove_usage": "Usage: %s%s (r)emove ``<alias>``",
   "alaises_info_usage": "Usage: %s%s (i)nfo ``<alias>``",
-  "aliases_notfound": "``%s`` is invalid! Possibilities: %s",
+  "aliases_notfound": "``%s`` is a invalid command! Possibilities: %s",
   "aliases_taken": "``%s`` is already bound to ``%s``",
   "aliases_add": "``%s`` has been assigned to ``%s``",
   "aliases_nottaken": "``%s`` is not bound to any command",
@@ -47,7 +47,7 @@
   "logs_enable_usage": "Usage: %s%s (e)nable ``<logType>``",
   "logs_disable_usage": "Usage: %s%s (d)isable ``<logType>``",
   "logs_set": "``%s`` has been set as the log channel",
-  "logs_notfound": "``%s`` is invalid! Possibilities:%s",
+  "logs_notfound": "``%s`` is a invalid logType! Possibilities: %s",
   "logs_alreadyenabled": "``%s`` is already enabled",
   "logs_alreadydisabled": "``%s`` is already disabled",
   "logs_enabled": "``%s`` logging has been enabled",
@@ -69,6 +69,7 @@
   "log_messages_bulk_attachment": "Attachment: %s",
 
   "log_message_delete": "%s deleted in %s",
+  "log_message_delete_audit": "%s deleted in %s by %s",
   "log_message_edit": "%s edited in %s",
   "log_message_bulk": "%i messages deleted in %s"
 }

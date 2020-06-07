@@ -83,8 +83,19 @@ function logDelete(guild, message) {
     let embed = new MessageEmbed();
     embed.setColor('ORANGE');
 
-    let member = message.guild.member(message.author);
+    let member = guild.member(message.author);
+
     embed.setFooter(util.format(translatePhrase('log_message_delete', guild.db.lang), `${message.author.tag}${member && member.displayName != message.author.username ? ` [${member.displayName}]` : ''}`, `#${message.channel.name}`));
+
+    if (guild.me.permissions.has('VIEW_AUDIT_LOG')) {
+      let auditCheck = await checkAuditStatus(message);
+
+      if (auditCheck) {
+        let executor = message.guild.member(auditCheck);
+
+        embed.setFooter(util.format(translatePhrase('log_message_delete_audit', guild.db.lang), `${message.author.tag}${member && member.displayName != message.author.username ? ` [${member.displayName}]` : ''}`, `#${message.channel.name}`, `${executor.user.tag}${executor && executor.displayName != executor.user.username ? ` [${executor.displayName}]` : ''}`));
+      }
+    }
 
     let sendMessage = '';
     let files = [];
@@ -415,6 +426,28 @@ async function deleteMessage(message, botDelete = false) {
     await message.delete();
     if (botDelete) message.botDelete = true;
   } catch { }
+}
+
+async function checkAuditStatus(message) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let log = await message.guild.fetchAuditLogs({type: 'MESSAGE_DELETE', limit: 1});
+      let entry = log.entries.first();
+
+      let lastEntry = null;
+      if (message.guild.hasOwnProperty('lastEntry')) lastEntry = message.guild.lastEntry;
+      message.guild.lastEntry = entry;
+
+      if (entry.target.id == message.author.id) {
+        if (lastEntry) {
+          if (lastEntry.id == entry.id && lastEntry.extra.count == entry.extra.count) return resolve();
+          return resolve(entry.executor);
+        }
+
+        return resolve(entry.executor);
+      }
+    } catch { resolve(); }
+  })
 }
 
 module.exports.logType = logType;
