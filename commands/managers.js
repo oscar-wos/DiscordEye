@@ -1,73 +1,78 @@
+const config = require('../config.json');
 const helper = require('../helper.js');
 const sql = require('../sql.js');
 const util = require('util');
 
 module.exports = {
   aliases: ['managers', 'manager', 'm'],
-  usage: '%s%s ``<(a)dd/(r)emove/(l)ist>``',
   channel: ['text'],
   guildPermissions: ['MANAGE_GUILD'],
-  async run(client, message, args) {
-    try {
-      if (!args[1]) return helper.sendMessage(message.channel, `${helper.translatePhrase('usage', message.guild.db.lang)} ${util.format(this.usage, message.guild.db.prefix, args[0])}`, helper.messageType.USAGE);
+  run(client, message, args) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        if (!args[1]) return resolve(await helper.sendMessage(message.channel, util.format(helper.translatePhrase('managers_usage', message.guild.db.lang), message.guild.db.prefix, args[0]), helper.messageType.USAGE));
 
-      switch (args[1]) {
-        case 'add': case 'a': return add(client, message, args);
-        case 'remove': case 'r': return remove(client, message, args);
-        case 'list': case 'l': return list(client, message, args);
-        default: return helper.sendMessage(message.channel, `${helper.translatePhrase('usage', message.guild.db.lang)} ${util.format(this.usage, message.guild.db.prefix, args[0])}`, helper.messageType.USAGE);
-      }
-    } catch (err) { console.error(err); }
+        switch (args[1]) {
+          case 'add': case 'a': return resolve(await add(client, message, args));
+          case 'remove': case 'r': return resolve(await remove(client, message, args));
+          case 'list': case 'l': return resolve(await list(client, message, args));
+          default: return resolve(await helper.sendMessage(message.channel, util.format(helper.translatePhrase('managers_usage', message.guild.db.lang), message.guild.db.prefix, args[0]), helper.messageType.USAGE));
+        }
+      } catch { resolve(); }
+    })
   }
 }
 
-async function add(client, message, args) {
-  try {
-    let usage = '%s%s (a)dd ``<user>``';
-    if (!args[2]) return helper.sendMessage(message.channel, `${helper.translatePhrase('usage', message.guild.db.lang)} ${util.format(usage, message.guild.db.prefix, args[0])}`, helper.messageType.USAGE);
+function add(client, message, args) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!args[2]) return resolve(await helper.sendMessage(message.channel, util.format(helper.translatePhrase('managers_add_usage', message.guild.db.lang), message.guild.db.prefix, args[0]), helper.messageType.USAGE));
 
-    let user = await helper.resolveUser(message, args[2], true);
-    if (!user) return;
+      let user = await helper.resolveUser(message, args[2], true);
+      if (!user) return;
 
-    if (message.guild.db.managers.includes(user.id)) return helper.sendMessage(message.channel, util.format(helper.translatePhrase('manager_included', message.guild.db.lang), user.tag), helper.messageType.ERROR);
+      if (message.guild.db.managers.includes(user.id)) return resolve(await helper.sendMessage(message.channel, util.format(helper.translatePhrase('managers_included', message.guild.db.lang), user.tag), helper.messageType.ERROR));
 
-    message.guild.db.managers.push(user.id);
-    await sql.updateManagers(message.guild.id, message.guild.db.managers);
-    helper.sendMessage(message.channel, util.format(helper.translatePhrase('manager_add', message.guild.db.lang), user.tag), helper.messageType.SUCCESS);
-  } catch (err) { console.error(err); }
+      message.guild.db.managers.push(user.id);
+      await sql.updateManagers(message.guild.id, message.guild.db.managers);
+      resolve(await helper.sendMessage(message.channel, util.format(helper.translatePhrase('managers_add', message.guild.db.lang), user.tag), helper.messageType.SUCCESS));
+    } catch (e) { reject(e); }
+  })
 }
 
-async function remove(client, message, args) {
-  try {
-    let usage = '%s%s (r)emove ``<user>``';
-    if (!args[2]) return helper.sendMessage(message.channel, `${helper.translatePhrase('usage', message.guild.db.lang)} ${util.format(usage, message.guild.db.prefix, args[0])}`, helper.messageType.USAGE);
+function remove(client, message, args) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!args[2]) return resolve(await helper.sendMessage(message.channel, util.format(helper.translatePhrase('managers_remove_usage', message.guild.db.lang), message.guild.db.prefix, args[0]), helper.messageType.USAGE));
 
-    let user = await helper.resolveUser(message, args[2], true);
-    if (!user) return;
+      let user = await helper.resolveUser(message, args[2], true);
+      if (!user) return;
 
-    if (!message.guild.db.managers.includes(user.id)) return helper.sendMessage(message.channel, util.format(helper.translatePhrase('manager_notincluded', message.guild.db.lang), user.tag), helper.messageType.ERROR);
+      if (!message.guild.db.managers.includes(user.id)) return resolve(await helper.sendMessage(message.channel, util.format(helper.translatePhrase('managers_not', message.guild.db.lang), user.tag), helper.messageType.ERROR));
 
-    message.guild.db.managers.splice(message.guild.db.managers.indexOf(user.id), 1);
-    await sql.updateManagers(message.guild.id, message.guild.db.managers);
-    helper.sendMessage(message.channel, util.format(helper.translatePhrase('manager_remove', message.guild.db.lang), user.tag), helper.messageType.SUCCESS);
-  } catch (err) { console.error(err); }
+      message.guild.db.managers.splice(message.guild.db.managers.indexOf(user.id), 1);
+      await sql.updateManagers(message.guild.id, message.guild.db.managers);
+      resolve(await helper.sendMessage(message.channel, util.format(helper.translatePhrase('managers_remove', message.guild.db.lang), user.tag), helper.messageType.SUCCESS));
+    } catch (e) { reject(e); }
+  })
 }
 
-async function list(client, message, args) {
-  try {
-    if (message.guild.db.managers.length == 0) return helper.sendMessage(message.channel, util.format(helper.translatePhrase('manager_none', message.guild.db.lang)), helper.messageType.SUCCESS);
-    let reply = '';
+function list(client, message, args) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (message.guild.db.managers.length == 0) return resolve(await helper.sendMessage(message.channel, util.format(helper.translatePhrase('managers_none', message.guild.db.lang)), helper.messageType.SUCCESS));
+      let reply = '';
 
-    for (let manager of message.guild.db.managers) {
-      let user = await helper.resolveUser(message, manager);
-      let member = message.guild.member(user);
+      for (let manager of message.guild.db.managers) {
+        let user = await helper.resolveUser(message, manager);
+        let member = message.guild.member(user);
 
-      if (user) {
-        if (reply.length > 0) reply += `\n`;
-        reply += `${user.tag}${member && user.username != member.displayName ? ` [${member.displayName}] ` : ' '}(${user.id})`;
+        if (!user) continue;
+        if (reply.length > 0) reply += '\n';
+        reply += `${user.tag}${member && user.username != member.displayName ? ` [${member.displayName}]` : ''} (${user.id})`;
       }
-    }
 
-    helper.sendMessage(message.channel, reply, helper.messageType.CODE);
-  } catch (err) { console.error(err); }
+      resolve(await helper.sendMessage(message.channel, reply, helper.messageType.CODE));
+    } catch (e) { reject(e); }
+  })
 }

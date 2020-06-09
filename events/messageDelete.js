@@ -9,6 +9,7 @@ module.exports = async (client, message) => {
     catch { }
   }
 
+  if (executor && executor.bot || message.botDelete) return;
   try { log.send(message.guild, { message: message, executor: executor }, log.Type.MESSAGE_DELETE); }
   catch { } 
 }
@@ -23,7 +24,6 @@ function checkAuditEntry(message) {
       if (message.guild.hasOwnProperty('lastEntry')) lastEntry = message.guild.lastEntry;
       message.guild.lastEntry = auditLog;
 
-      if (auditLog.executor.bot) return resolve(null);
       if (auditLog.target.id != message.author.id) return resolve(null);
 
       if (lastEntry) {

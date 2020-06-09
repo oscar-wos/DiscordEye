@@ -37,7 +37,7 @@ function add(client, message, args) {
 
       await sql.updateCommands(message.guild.id, message.guild.db.commands);
       resolve(await helper.sendMessage(message.channel, util.format(helper.translatePhrase('aliases_add', message.guild.db.lang), args[3], command.command), helper.messageType.SUCCESS));
-    } catch { resolve(); }
+    } catch (e) { reject(e); }
   })
 }
 
@@ -55,6 +55,6 @@ function remove(client, message, args) {
       alias.aliases.splice(alias.aliases.indexOf(args[2]), 1);
       await sql.updateCommands(message.guild.id, message.guild.db.commands);
       resolve(await helper.sendMessage(message.channel, util.format(helper.translatePhrase('aliases_remove', message.guild.db.lang), args[2]), helper.messageType.SUCCESS));
-    } catch { resolve(); }
+    } catch (e) { reject(e); }
   })
 }

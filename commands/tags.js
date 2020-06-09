@@ -4,7 +4,6 @@ const util = require('util');
 
 module.exports = {
   aliases: ['tags', 'tag', 't'],
-  usage: '%s%s ``<(a)dd/(r)emove/(l)ist/(i)nfo>``',
   channel: ['text'],
   guildPermissions: ['MANAGE_GUILD'],
   async run(client, message, args) {

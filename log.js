@@ -33,14 +33,14 @@ function logDelete(guild, data) {
     embed.setColor('ORANGE');
 
     let displayName = data.message.author.tag;
-    if (data.message.author.username != data.message.member.displayName) displayName += ` [${data.message.member.displayName}]`;
+    if (data.message.member && data.message.author.username != data.message.member.displayName) displayName += ` [${data.message.member.displayName}]`;
     embed.setFooter(util.format(helper.translatePhrase('log_message_delete', guild.db.lang), displayName, `#${data.message.channel.name}`));
 
     if (data.executor) {
       let executor = guild.member(data.executor);
 
       let executorName = data.executor.tag;
-      if (data.executor.username != executor.displayName) executorName += ` [${executor.displayName}]`;
+      if (executor && data.executor.username != executor.displayName) executorName += ` [${executor.displayName}]`;
       embed.setFooter(util.format(helper.translatePhrase('log_message_delete_audit', guild.db.lang), displayName, `#${data.message.channel.name}`, executorName));
     }
 
@@ -62,7 +62,7 @@ function logDelete(guild, data) {
       let attachment = data.message.attachment;
       if (content.length > 0) content += `\n`;
       
-      if (guild.db.log.files != null && attachment.hasOwnProperty('link')) content += util.format(helper.translatePhrase('log_attachment_url', guild.db.lang), attachment.link.url, attachment.name);
+      if (guild.db.log.files != null && attachment.link) content += util.format(helper.translatePhrase('log_attachment_url', guild.db.lang), attachment.link.url, attachment.name);
       else if (!config.discord.log.downloadAttachments) content += util.format(helper.translatePhrase('log_attachment_configure', guild.db.lang), attachment.name, guild.db.prefix);
       else {
         content += util.format(helper.translatePhrase('log_attachment', guild.db.lang), attachment.name);

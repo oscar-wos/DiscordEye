@@ -37,19 +37,19 @@ function set(client, message, args) {
       if (channel.permissionsFor(message.guild.me).has('MANAGE_WEBHOOKS')) {
         let webhooks = await channel.fetchWebhooks();
         let webhook = webhooks.find(webhook => webhook.name === 'Log');
-  
+
         if (webhook) message.guild.db.log.webhook = { id: webhook.id, token: webhook.token }
         else {
           webhook = await channel.createWebhook('Log', { avatar: 'https://cdn.discordapp.com/avatars/697263650997534812/a3c4a5762bf5f6fc93fabd0fb7881f53.png?size=256' });
           message.guild.db.log.webhook = { id: webhook.id, token: webhook.token }
         }
-  
+
         message.guild.logHook = webhook;
       }
 
       await sql.updateLog(message.guild.id, message.guild.db.log);
       resolve(await helper.sendMessage(message.channel, util.format(helper.translatePhrase('logs_set', message.guild.db.lang), channel.name), helper.messageType.SUCCESS));
-    } catch { resolve(); }
+    } catch (e) { reject(e); }
   })
 }
 
@@ -69,7 +69,7 @@ function enable(client, message, args) {
       message.guild.db.log.enabledModules.push(args[2].toLowerCase());
       await sql.updateLog(message.guild.id, message.guild.db.log);
       resolve(await helper.sendMessage(message.channel, util.format(helper.translatePhrase('logs_enabled', message.guild.db.lang), args[2]), helper.messageType.SUCCESS));
-    } catch (err) { console.log(err); resolve(); }
+    } catch (e) { reject(e); }
   })
 }
 
@@ -91,6 +91,6 @@ function disable(client, message, args) {
       message.guild.db.log.enabledModules.splice(logTypeValues.indexOf(args[2].toLowerCase()), 1);
       await sql.updateLog(message.guild.id, message.guild.db.log);
       resolve(await helper.sendMessage(message.channel, util.format(helper.translatePhrase('logs_disabled', message.guild.db.lang), args[2]), helper.messageType.SUCCESS));
-    } catch { resolve(); }
+    } catch (e) { reject(e); }
   })
 }

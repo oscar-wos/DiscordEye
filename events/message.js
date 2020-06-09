@@ -10,7 +10,9 @@ module.exports = async (client, message) => {
 
   if (message.attachments.size > 0) {
     let attachment = message.attachments.first();
-    downloadAttachment(message, attachment);
+
+    try { downloadAttachment(message, attachment); }
+    catch { }
   }
 
   if (message.content.length == 0) return;
