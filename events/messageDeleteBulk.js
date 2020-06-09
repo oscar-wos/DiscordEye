@@ -1,7 +1,8 @@
-const helper = require('../helper.js');
+const log = require('../log.js');
 
 module.exports = async (client, messages) => {
   let message = messages.first();
 
-  helper.sendLogMessage(message.guild, { channel: message.channel, messages: messages.array() }, helper.logType.MESSAGE_BULK_DELETE);
+  try { log.send(message.guild, { channel: message.channel, messages: messages.array() }, log.Type.MESSAGE_BULK_DELETE); }
+  catch { }
 }
