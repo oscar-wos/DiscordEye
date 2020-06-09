@@ -14,7 +14,6 @@ module.exports = {
         switch (args[1]) {
           case 'add': case 'a': return resolve(await add(client, message, args));
           case 'remove': case 'r': return resolve(await remove(client, message, args));
-          //case 'list': case 'l': return resolve(await list(client, message, args));
           default: resolve(await helper.sendMessage(message.channel, util.format(helper.translatePhrase('aliases_usage', message.guild.db.lang), message.guild.db.prefix, args[0]), helper.messageType.USAGE));
         }
       } catch { resolve(); }
@@ -56,14 +55,6 @@ function remove(client, message, args) {
       alias.aliases.splice(alias.aliases.indexOf(args[2]), 1);
       await sql.updateCommands(message.guild.id, message.guild.db.commands);
       resolve(await helper.sendMessage(message.channel, util.format(helper.translatePhrase('aliases_remove', message.guild.db.lang), args[2]), helper.messageType.SUCCESS));
-    } catch { resolve(); }
-  })
-}
-
-function list(client, message, args) {
-  return new Promise(async (resolve, reject) => {
-    try {
-      
     } catch { resolve(); }
   })
 }

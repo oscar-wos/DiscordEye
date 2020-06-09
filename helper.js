@@ -4,12 +4,6 @@ const { uuid } = require('uuidv4');
 const util = require('util');
 const fs = require('fs');
 
-const logType = {
-  MESSAGE_DELETE: 'message_delete',
-  MESSAGE_UPDATE: 'message_update',
-  MESSAGE_BULK_DELETE: 'message_bulk_delete'
-}
-
 const messageType = {
   NO_ACCESS: 'type_noaccess',
   USAGE: 'type_usage',
@@ -48,175 +42,6 @@ module.exports.resolveChannel = function(message, channelId, channelType, checkS
         resolve();
       } catch { resolve(); }
     }
-  })
-}
-
-module.exports.sendLogMessage = function(guild, data, type) {
-  return new Promise(async (resolve, reject) => {
-    if (!guild.hasOwnProperty('ready') || guild.db.log.channel == null) return resolve();
-    if (!guild.db.log.enabledModules.includes(type)) return resolve();
-
-    switch (type) {
-      case logType.MESSAGE_DELETE: return resolve(await logDelete(guild, data));
-      case logType.MESSAGE_UPDATE: return resolve(await logUpdate(guild, data));
-      case logType.MESSAGE_BULK_DELETE: return resolve(await logBulkDelete(guild, data));
-    }
-  })
-}
-
-function finalLog(guild, embed, files) {
-  return new Promise(async (resolve, reject) => {
-    if (guild.hasOwnProperty('logHook')) {
-      try {
-        return resolve(await guild.logHook.send('', { embeds: [ embed ], files: files }));
-      } catch { }
-    }
-
-    let guildChannel = guild.channels.cache.find(channel => channel.id == guild.db.log.channel);
-    try { resolve(await guildChannel.send('', { embed: embed, files: files })); }
-    catch { resolve(); }
-  })
-}
-
-function logDelete(guild, message) {
-  return new Promise(async (resolve, reject) => {
-    let embed = new MessageEmbed();
-    embed.setColor('ORANGE');
-
-    let member = guild.member(message.author);
-
-    embed.setFooter(util.format(translatePhrase('log_message_delete', guild.db.lang), `${message.author.tag}${member && member.displayName != message.author.username ? ` [${member.displayName}]` : ''}`, `#${message.channel.name}`));
-
-    if (guild.me.permissions.has('VIEW_AUDIT_LOG')) {
-      let auditCheck = await checkAuditStatus(message);
-
-      if (auditCheck) {
-        let executor = message.guild.member(auditCheck);
-
-        embed.setFooter(util.format(translatePhrase('log_message_delete_audit', guild.db.lang), `${message.author.tag}${member && member.displayName != message.author.username ? ` [${member.displayName}]` : ''}`, `#${message.channel.name}`, `${executor.user.tag}${executor && executor.displayName != executor.user.username ? ` [${executor.displayName}]` : ''}`));
-      }
-    }
-
-    let sendMessage = '';
-    let files = [];
-
-    let string = lengthCheck(message.cleanContent);
-
-    if (string.type == 'text') sendMessage += util.format(translatePhrase('log_message', guild.db.lang), string.value);
-    else if (string.type == 'id') {
-      if (config.site.enabled) sendMessage += util.format(translatePhrase('log_message_link', guild.db.lang), `${config.site.url}/messages/${string.value}.txt`);
-      else {
-        sendMessage += util.format(translatePhrase('log_message_attachment', guild.db.lang), string.value);
-        files.push(`./messages/${string.value}.txt`);
-      }
-    }
-
-    if (message.hasOwnProperty('attachment')) {
-      let attachment = message.attachment;
-
-      if (sendMessage.length > 0) sendMessage += `\n`;
-      if (message.guild.db.log.files != null && attachment.hasOwnProperty('link')) sendMessage += util.format(translatePhrase('log_attachment_url', guild.db.lang), attachment.link.url, attachment.name);
-      else if (!config.discord.log.downloadAttachments) sendMessage += util.format(translatePhrase('log_attachment_configure', guild.db.lang), attachment.name, guild.db.prefix);
-      else {
-        sendMessage += util.format(translatePhrase('log_attachment', guild.db.lang), attachment.name);
-        files.push(`./attachments/${attachment.channel.id}/${attachment.id}/${attachment.name}`);
-      }
-    }
-
-    embed.setDescription(sendMessage);
-    resolve(finalLog(guild, embed, files));
-  })
-}
-
-function logUpdate(guild, data) {
-  return new Promise(async (resolve, reject) => {
-    let embed = new MessageEmbed();
-    embed.setColor('YELLOW');
-
-    let member = data.new.guild.member(data.new.author);
-    embed.setFooter(util.format(translatePhrase('log_message_edit', guild.db.lang), `${data.new.author.tag}${member && member.displayName != data.new.author.username ? ` [${member.displayName}]` : ''}`, `#${data.new.channel.name}`));
-
-    let sendMessage = '';
-    let files = [];
-
-    let oldMessage = lengthCheck(data.old.cleanContent);
-    let newMessage = lengthCheck(data.new.cleanContent);
-
-    if (oldMessage.type == 'text') sendMessage += util.format(translatePhrase('log_message', guild.db.lang), oldMessage.value);
-    else if (oldMessage.type == 'id') {
-      if (config.site.enabled) sendMessage += util.format(translatePhrase('log_message_link', guild.db.lang), `${config.site.url}/messages/${oldMessage.value}.txt`);
-      else {
-        sendMessage += util.format(translatePhrase('log_message_attachment', guild.db.lang), oldMessage.value);
-        files.push(`./messages/${oldMessage.value}.txt`);
-      }
-    }
-
-    sendMessage += '\n';
-
-    if (newMessage.type == 'text') sendMessage += util.format(translatePhrase('log_message_new', guild.db.lang), data.new.url, newMessage.value);
-    else if (newMessage.type == 'id') {
-      if (config.site.enabled) sendMessage += util.format(translatePhrase('log_message_link_new', guild.db.lang), data.new.url, `${config.site.url}/messages/${newMessage.value}.txt`);
-      else {
-        sendMessage += util.format(translatePhrase('log_message_attachment_new', guild.db.lang), data.new.url, newMessage.value);
-        files.push(`./messages/${newMessage.value}.txt`);
-      }
-    }
-
-    embed.setDescription(sendMessage);
-    resolve(finalLog(guild, embed, files));
-  })
-}
-
-function logBulkDelete(guild, data) {
-  return new Promise(async (resolve, reject) => {
-    let embed = new MessageEmbed();
-    embed.setColor('ORANGE');
-    embed.setFooter(util.format(translatePhrase('log_message_bulk', guild.db.lang), data.messages.length, `#${data.channel.name}`))
-
-    let string = '';
-    let files = [];
-
-    for (let i = data.messages.length - 1; i >= 0; i--) {
-      let message = data.messages[i];
-      let member = guild.member(message.author);
-
-      if (message.hasOwnProperty('changes')) {
-        for (let x = 0; x < message.changes.length; x++) {
-          let messageEdit = message.changes[x];
-          if (messageEdit.length == 0) continue;
-          if (string.length > 0) string += '\n';
-
-          string += `${new Date(messageEdit.createdTimestamp)} ${message.author.tag}${member && member.displayName != message.author.username ? ` [${member.displayName}]` : ''} | ${messageEdit.cleanContent}`;
-        }
-      }
-
-      if (string.length > 0 && message.cleanContent.length > 0) string += '\n';
-      if (message.cleanContent.length > 0) string += `${new Date(message.createdTimestamp)} ${message.author.tag}${member && member.displayName != message.author.username ? ` [${member.displayName}]` : ''} -> ${message.cleanContent}`;
-
-      if (message.hasOwnProperty('attachment')) {
-        let attachment = message.attachment;
-        if (string.length > 0) string += '\n';
-
-        if (message.attachment.hasOwnProperty('link')) string += util.format(translatePhrase('log_messages_bulk_attachment', guild.db.lang), link.url);
-        else if (config.discord.log.downloadAttachments) string += util.format(translatePhrase('log_messages_bulk_attachment', guild.db.lang), `/attachments/${attachment.channel.id}/${attachment.id}/${attachment.name}`);
-        else string += util.format(translatePhrase('log_messages_bulk_attachment', guild.db.lang), attachment.name);
-      }
-    }
-
-    if (!fs.existsSync('./messages')) fs.mkdirSync('./messages');
-
-    let id = uuid();
-    fs.writeFileSync(`./messages/${id}.txt`, string);
-
-    let sendMessage = '';
-
-    if (config.site.enabled) sendMessage = util.format(translatePhrase('log_messages_link', guild.db.lang), `${config.site.url}/messages/${id}.txt`);
-    else {
-      sendMessage = util.format(translatePhrase('log_messages_attachment', guild.db.lang), id);
-      files.push(`./messages/${id}.txt`);
-    }
-
-    embed.setDescription(sendMessage);
   })
 }
 
@@ -409,18 +234,6 @@ function messageAttachment(channel, message) {
   })
 }
 
-function lengthCheck(string) {
-  if (string.length == 0) return { type: 'none' }
-  else if (string.length < 500 && string.split('\n').length < 5) return { type: 'text', value: string }
-  else {
-    if (!fs.existsSync('./messages')) fs.mkdirSync('./messages');
-
-    let id = uuid();
-    fs.writeFileSync(`./messages/${id}.txt`, string);
-    return { type: 'id', value: id }
-  }
-}
-
 async function deleteMessage(message, botDelete = false) {
   try {
     await message.delete();
@@ -428,29 +241,15 @@ async function deleteMessage(message, botDelete = false) {
   } catch { }
 }
 
-async function checkAuditStatus(message) {
+module.exports.fetchAuditLog = function(guild, type) {
   return new Promise(async (resolve, reject) => {
     try {
-      let log = await message.guild.fetchAuditLogs({type: 'MESSAGE_DELETE', limit: 1});
-      let entry = log.entries.first();
-
-      let lastEntry = null;
-      if (message.guild.hasOwnProperty('lastEntry')) lastEntry = message.guild.lastEntry;
-      message.guild.lastEntry = entry;
-
-      if (entry.target.id == message.author.id) {
-        if (lastEntry) {
-          if (lastEntry.id == entry.id && lastEntry.extra.count == entry.extra.count) return resolve();
-          return resolve(entry.executor);
-        }
-
-        return resolve(entry.executor);
-      }
-    } catch { resolve(); }
+      let log = await guild.fetchAuditLogs({ type: type, limit: 1 });
+      resolve(log.entries.first());
+    } catch (e) { reject(e); }
   })
 }
 
-module.exports.logType = logType;
 module.exports.messageType = messageType;
 module.exports.sendMessage = sendMessage;
 module.exports.translatePhrase = translatePhrase;
